@@ -267,6 +267,154 @@ textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
   .brand h1 { font-size: 1.5rem; }
 }
 
+/* ===== Recipe Print Sheet ===== */
+.recipe-print-container { display: none; }
+.recipe-print-mode .recipe-print-container { display: block; }
+.recipe-print-mode body > .container > *:not(.recipe-print-container) { display: none !important; }
+.recipe-print-mode body { background: white; }
+
+.recipe-sheet {
+  page-break-after: always;
+  padding: 18mm 16mm;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: #2c241e;
+  background: white;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+.recipe-sheet:last-child { page-break-after: auto; }
+
+.recipe-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 3px double #b34a32;
+}
+.recipe-date-block { display: flex; align-items: baseline; gap: 14px; }
+.recipe-date {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.6rem; font-weight: 600; color: #2c241e;
+  letter-spacing: 0.04em;
+}
+.recipe-meal-badge {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.1rem; font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 4px;
+  letter-spacing: 0.15em;
+}
+.recipe-meal-badge.lunch { background: #e8efd9; color: #5d6d44; }
+.recipe-meal-badge.dinner { background: #f5d9d1; color: #8c3a26; }
+.recipe-brand-block {
+  text-align: right;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.72rem; color: #5c4d42; line-height: 1.5;
+}
+.recipe-brand-block .gold { color: #c4923a; font-weight: 500; letter-spacing: 0.18em; }
+.recipe-event-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #fff8dc, #faf0c8);
+  border: 1px solid #c4923a;
+  color: #8a6515;
+  font-size: 0.78rem; font-weight: 500;
+  padding: 3px 12px;
+  margin-left: 10px;
+}
+
+.recipe-menu-title-wrap {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px; padding: 14px 18px;
+  background: linear-gradient(135deg, #faf5ec 0%, #fdf9f1 100%);
+  border-left: 6px solid #b34a32;
+}
+.recipe-menu-emoji { font-size: 2.6rem; line-height: 1; }
+.recipe-menu-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.4rem; font-weight: 600; color: #2c241e;
+  letter-spacing: 0.04em; flex: 1;
+}
+.recipe-menu-meta { font-size: 0.85rem; color: #5c4d42; margin-top: 4px; }
+.recipe-yakuzen-tag {
+  display: inline-block; background: rgba(122,140,92,0.18); color: #5d6d44;
+  padding: 3px 12px; font-size: 0.78rem; font-weight: 500;
+  margin-top: 6px;
+}
+
+.recipe-items-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  margin-bottom: 18px;
+}
+.recipe-item-card {
+  text-align: center; padding: 12px 6px;
+  border-radius: 8px;
+  border: 1.5px solid;
+}
+.recipe-item-card.shushoku { background: #fff8e8; border-color: #f0c75e; }
+.recipe-item-card.shusai { background: #fde8e0; border-color: #d97757; }
+.recipe-item-card.fukusai1 { background: #ecf3df; border-color: #95a86d; }
+.recipe-item-card.fukusai2 { background: #e4ecd4; border-color: #7a8c5c; }
+.recipe-item-card.dessert { background: #fae8f0; border-color: #d68aa8; }
+.recipe-item-card.shirumono { background: #e0eef5; border-color: #5e95b8; }
+.recipe-item-emoji { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+.recipe-item-type {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.72rem; color: #5c4d42; letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.recipe-item-name {
+  font-size: 0.85rem; font-weight: 500; color: #2c241e; line-height: 1.4;
+}
+
+.recipe-section {
+  margin-bottom: 16px;
+}
+.recipe-section-heading {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.05rem; font-weight: 600; color: #b34a32;
+  padding-bottom: 4px; margin-bottom: 10px;
+  border-bottom: 2px solid #d9cfbf;
+  letter-spacing: 0.08em;
+}
+.recipe-section-heading .emoji { margin-right: 6px; }
+
+.recipe-ingredients-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px;
+  font-size: 0.95rem;
+}
+.recipe-ingredient-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 6px; border-bottom: 1px dotted #ebe2d2;
+}
+.recipe-ingredient-name { color: #2c241e; }
+.recipe-ingredient-amount { color: #5c4d42; font-size: 0.88rem; }
+
+.recipe-method-text {
+  font-size: 0.95rem; line-height: 1.85; color: #2c241e;
+  white-space: pre-wrap;
+  padding: 10px 14px;
+  background: #fdf9f1;
+  border-radius: 6px;
+  border: 1px solid #ebe2d2;
+}
+.recipe-method-text strong { color: #b34a32; font-weight: 600; }
+
+.recipe-footer {
+  margin-top: 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #d9cfbf;
+  font-size: 0.72rem; color: #5c4d42;
+}
+.recipe-footer-philosophy { color: #c4923a; font-family: 'Noto Serif JP', serif; letter-spacing: 0.12em; }
+.recipe-page-num { font-size: 0.75rem; color: #5c4d42; }
+
+@media print {
+  .recipe-print-mode .recipe-print-container { display: block !important; }
+  .recipe-print-mode body { padding: 0 !important; margin: 0 !important; }
+  .recipe-print-mode .container { max-width: none; margin: 0; padding: 0; }
+  .recipe-sheet { padding: 12mm 10mm; min-height: auto; }
+  @page { size: A4 portrait; margin: 0; }
+}
+
 /* ===== Mobile ===== */
 @media (max-width: 720px) {
   body { padding: 16px 10px 32px; }
@@ -403,7 +551,8 @@ textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
       <div class="a4-sheet" id="a4Sheet"></div>
 
       <div class="actions no-print">
-        <button class="btn-secondary" onclick="window.print()">🖨　印刷する</button>
+        <button class="btn-secondary" onclick="window.print()">🖨　献立表を印刷</button>
+        <button class="btn-secondary" onclick="printRecipes()">📖　レシピを印刷</button>
         <button class="btn-secondary" onclick="downloadCSV('schedule')">📋　献立表をCSV保存</button>
         <button class="btn-secondary" onclick="goToShoppingList()">🛒　食材購入リストへ</button>
         <button class="btn-secondary" onclick="backToCandidates()">↩　振り分けに戻る</button>
@@ -435,6 +584,9 @@ textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
       </div>
     </div>
   </section>
+
+  <!-- ============ Recipe Print Container ============ -->
+  <div class="recipe-print-container" id="recipePrintContainer"></div>
 
   <footer class="footer">
     社会福祉法人 天祐会<br>
@@ -1620,6 +1772,199 @@ function updateShoppingList() {
     </div>`;
   });
   list.innerHTML = html;
+}
+
+// ===== Recipe Print =====
+function getItemEmoji(type, name) {
+  // 主食判定（中身で判定）
+  if (type === '主食') {
+    if (/麺|うどん|そば|ラーメン|スパゲ|パスタ|そうめん|ビーフン|フォー/.test(name)) return '🍜';
+    if (/おにぎり|寿司/.test(name)) return '🍙';
+    if (/カレー|丼/.test(name)) return '🍛';
+    if (/パン/.test(name)) return '🍞';
+    return '🍚';
+  }
+  if (type === '主菜') {
+    if (/鯖|鮭|鯵|鯛|鰤|ぶり|鱈|たら|いわし|さんま|まぐろ|鰹|魚|鯉|海老|エビ|ほたて|いか|たこ|貝|カレイ/.test(name)) return '🐟';
+    if (/鶏|チキン|唐揚|手羽/.test(name)) return '🍗';
+    if (/豚|ポーク|生姜焼|角煮|しゃぶ/.test(name)) return '🥓';
+    if (/牛|ステーキ|ビーフ|肉じゃが/.test(name)) return '🥩';
+    if (/卵|オムレツ/.test(name)) return '🥚';
+    if (/豆腐/.test(name)) return '🥡';
+    return '🍖';
+  }
+  if (type === '副菜1' || type === '副菜2' || type === '副菜') {
+    if (/サラダ|生野菜/.test(name)) return '🥗';
+    if (/和え|おひたし|浸し/.test(name)) return '🥬';
+    if (/煮物|含め煮|きんぴら/.test(name)) return '🍲';
+    if (/漬物|浅漬|なます|酢の物/.test(name)) return '🥒';
+    if (/きのこ/.test(name)) return '🍄';
+    return '🥕';
+  }
+  if (type === 'デザート' || type === 'デザート/汁物') {
+    if (/プリン|ゼリー|寒天/.test(name)) return '🍮';
+    if (/ヨーグルト/.test(name)) return '🥛';
+    if (/餅|まんじゅう|団子/.test(name)) return '🍡';
+    if (/ケーキ|タルト/.test(name)) return '🍰';
+    if (/果物|フルーツ|いちご|みかん|りんご|柿|ぶどう|びわ|さくらんぼ|桃|梨/.test(name)) return '🍓';
+    return '🍨';
+  }
+  if (type === '汁物') {
+    if (/味噌|みそ|豚汁/.test(name)) return '🍜';
+    if (/澄し|すまし/.test(name)) return '🥣';
+    return '🥣';
+  }
+  return '🍽️';
+}
+
+function getItemCategoryClass(type) {
+  if (type === '主食') return 'shushoku';
+  if (type === '主菜') return 'shusai';
+  if (type === '副菜1') return 'fukusai1';
+  if (type === '副菜2' || type === '副菜') return 'fukusai2';
+  if (type === 'デザート') return 'dessert';
+  if (type === '汁物') return 'shirumono';
+  return 'shusai';
+}
+
+function getMenuEmoji(category, name) {
+  if (category === '麺') return '🍜';
+  if (category === '丼') return '🍛';
+  if (category === '魚') return '🐟';
+  if (category === '肉') {
+    if (/鶏|唐揚|チキン/.test(name)) return '🍗';
+    if (/豚/.test(name)) return '🥓';
+    if (/牛/.test(name)) return '🥩';
+    return '🍖';
+  }
+  return '🍱';
+}
+
+function formatRecipeText(recipe) {
+  if (!recipe) return '';
+  // \nを実際の改行に変換し、見出し【】を強調
+  return recipe
+    .replace(/\\n/g, '\n')
+    .replace(/【([^】]+)】/g, '<strong>【$1】</strong>');
+}
+
+function printRecipes() {
+  // 採用された献立を日付・時間順に集める
+  const recipes = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    ['lunch', 'dinner'].forEach(meal => {
+      const cid = assignments[`${key}-${meal}`];
+      if (cid != null) {
+        const c = candidates.find(c => c.id === cid);
+        if (c) recipes.push({ date: d, meal, candidate: c });
+      }
+    });
+  }
+
+  if (recipes.length === 0) {
+    alert('採用された献立がありません。先に献立を割り当ててください。');
+    return;
+  }
+
+  // レシピ印刷用のHTMLを構築
+  const container = document.getElementById('recipePrintContainer');
+  let html = '';
+  recipes.forEach((r, idx) => {
+    html += buildRecipeSheet(r, idx + 1, recipes.length);
+  });
+  container.innerHTML = html;
+
+  // 印刷モードに切り替えて印刷ダイアログを開く
+  document.body.classList.add('recipe-print-mode');
+
+  // 印刷ダイアログを開く（少し遅延させて確実にレンダリングを待つ）
+  setTimeout(() => {
+    window.print();
+    // 印刷ダイアログが閉じたら通常モードに戻す
+    setTimeout(() => {
+      document.body.classList.remove('recipe-print-mode');
+    }, 500);
+  }, 200);
+}
+
+function buildRecipeSheet(recipeData, pageNum, total) {
+  const { date, meal, candidate: c } = recipeData;
+  const dows = ['日','月','火','水','木','金','土'];
+  const dateStr = `${date.getMonth()+1}月${date.getDate()}日（${dows[date.getDay()]}）`;
+  const mealLabel = meal === 'lunch' ? '昼　食' : '夕　食';
+  const mealClass = meal;
+  const event = getEventForDate(date);
+  const eventTag = event ? `<span class="recipe-event-tag">★ ${escapeHtml(event)}</span>` : '';
+  const menuEmoji = getMenuEmoji(c.category || '', c.name || '');
+  const hasYakuzen = c.yakuzen && c.yakuzen !== 'なし' && c.yakuzen.trim().length > 0;
+
+  // 5品のカード
+  const items = Array.isArray(c.items) ? c.items : [];
+  const itemCards = items.map(it => {
+    const emoji = getItemEmoji(it.type || '', it.name || '');
+    const klass = getItemCategoryClass(it.type || '');
+    return `<div class="recipe-item-card ${klass}">
+      <div class="recipe-item-emoji">${emoji}</div>
+      <div class="recipe-item-type">${escapeHtml(it.type || '')}</div>
+      <div class="recipe-item-name">${escapeHtml(it.name || '')}</div>
+    </div>`;
+  }).join('');
+
+  // 材料
+  const ingredients = Array.isArray(c.ingredients) ? c.ingredients : [];
+  const ingHtml = ingredients.map(ing =>
+    `<div class="recipe-ingredient-row">
+      <span class="recipe-ingredient-name">${escapeHtml(ing.name || '')}</span>
+      <span class="recipe-ingredient-amount">${escapeHtml(ing.amount || '')}</span>
+    </div>`
+  ).join('');
+
+  // 作り方
+  const recipeText = formatRecipeText(c.recipe || '');
+
+  return `<div class="recipe-sheet">
+    <div class="recipe-header">
+      <div class="recipe-date-block">
+        <span class="recipe-date">${dateStr}</span>
+        <span class="recipe-meal-badge ${mealClass}">${mealLabel}</span>
+        ${eventTag}
+      </div>
+      <div class="recipe-brand-block">
+        社会福祉法人 天祐会<br>
+        <span class="gold">七 福 神 グ ル ー プ</span>
+      </div>
+    </div>
+
+    <div class="recipe-menu-title-wrap">
+      <div class="recipe-menu-emoji">${menuEmoji}</div>
+      <div style="flex:1;">
+        <div class="recipe-menu-title">${escapeHtml(c.name || '')}</div>
+        <div class="recipe-menu-meta">
+          約${c.calories || 550}kcal / ${c.category || ''}
+          ${hasYakuzen ? `<br><span class="recipe-yakuzen-tag">🌿 ${escapeHtml(c.yakuzen)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="recipe-items-grid">${itemCards}</div>
+
+    <div class="recipe-section">
+      <div class="recipe-section-heading"><span class="emoji">🛒</span>材料</div>
+      <div class="recipe-ingredients-grid">${ingHtml}</div>
+    </div>
+
+    <div class="recipe-section">
+      <div class="recipe-section-heading"><span class="emoji">👨‍🍳</span>作り方</div>
+      <div class="recipe-method-text">${recipeText}</div>
+    </div>
+
+    <div class="recipe-footer">
+      <span class="recipe-footer-philosophy">— 楽しく食べる環境づくり —</span>
+      <span class="recipe-page-num">${pageNum} / ${total}</span>
+    </div>
+  </div>`;
 }
 
 // ===== Navigation =====
