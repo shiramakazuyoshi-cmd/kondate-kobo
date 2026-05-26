@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>献立工房 v4 | 七福神グループ・人財開発室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-cream: #faf5ec;
+  --bg-paper: #fdf9f1;
+  --primary: #b34a32;
+  --primary-dark: #8c3a26;
+  --accent: #7a8c5c;
+  --accent-dark: #5d6d44;
+  --ink: #2c241e;
+  --ink-soft: #5c4d42;
+  --line: #d9cfbf;
+  --line-soft: #ebe2d2;
+  --gold: #c4923a;
+  --check-on: #7a8c5c;
+  --slot-empty: #f0eadd;
+  --cookdeli: #d4a76a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg-cream);
+  color: var(--ink);
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+body {
+  padding: 32px 16px 48px;
+  background-image:
+    radial-gradient(circle at 15% 8%, rgba(196, 146, 58, 0.05) 0%, transparent 35%),
+    radial-gradient(circle at 85% 75%, rgba(122, 140, 92, 0.05) 0%, transparent 40%);
+  min-height: 100vh;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* ===== Header ===== */
+.brand { text-align: center; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px double var(--line); }
+.brand-tag { font-family: 'Noto Serif JP', serif; font-size: 0.72rem; letter-spacing: 0.4em; color: var(--primary); margin-bottom: 12px; padding-left: 0.4em; }
+.brand h1 { font-family: 'Noto Serif JP', serif; font-size: 2.2rem; font-weight: 600; letter-spacing: 0.12em; color: var(--ink); margin-bottom: 8px; padding-left: 0.12em; }
+.brand-sub { font-size: 0.82rem; color: var(--ink-soft); letter-spacing: 0.2em; }
+.brand-philosophy { margin-top: 14px; font-family: 'Noto Serif JP', serif; font-size: 0.82rem; color: var(--gold); letter-spacing: 0.15em; }
+.brand [contenteditable="true"] { outline: none; transition: background 0.15s; padding: 2px 6px; border-radius: 3px; cursor: text; }
+.brand [contenteditable="true"]:hover { background: rgba(196, 146, 58, 0.08); }
+.brand [contenteditable="true"]:focus { background: rgba(196, 146, 58, 0.12); box-shadow: 0 0 0 1px var(--gold); }
+.brand-edit-hint { margin-top: 10px; font-size: 0.7rem; color: var(--ink-soft); opacity: 0.5; letter-spacing: 0.1em; }
+.brand-edit-hint:hover { opacity: 0.9; }
+
+/* ===== Card ===== */
+.card { background: var(--bg-paper); border: 1px solid var(--line); padding: 32px 36px; margin-bottom: 20px; position: relative; }
+.card::before { content: ''; position: absolute; top: 6px; left: 6px; right: 6px; bottom: 6px; border: 1px solid rgba(217, 207, 191, 0.4); pointer-events: none; }
+.card-label { font-family: 'Noto Serif JP', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--primary); margin-bottom: 4px; padding-left: 0.3em; }
+.card h2 { font-family: 'Noto Serif JP', serif; font-size: 1.4rem; font-weight: 500; color: var(--ink); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); letter-spacing: 0.06em; }
+
+/* ===== Form ===== */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+.form-row { display: flex; flex-direction: column; }
+.form-row.full { grid-column: 1 / -1; }
+label { font-size: 0.85rem; font-weight: 500; color: var(--ink); margin-bottom: 6px; letter-spacing: 0.06em; }
+label .hint { font-size: 0.72rem; color: var(--ink-soft); font-weight: 300; margin-left: 6px; letter-spacing: 0.04em; }
+input[type="text"], input[type="number"], input[type="date"], select, textarea {
+  font-family: 'Noto Sans JP', sans-serif; font-size: 0.95rem; background: white; border: 1px solid var(--line);
+  padding: 11px 14px; color: var(--ink); width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(179, 74, 50, 0.08); }
+textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
+.example-keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.example-tag { font-size: 0.78rem; background: white; border: 1px solid var(--line); color: var(--ink-soft); padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
+.example-tag:hover, .example-tag.active { background: var(--accent); border-color: var(--accent); color: white; }
+.budget-display { margin-top: 5px; font-size: 0.82rem; color: var(--ink-soft); font-style: italic; }
+
+/* ===== Buttons ===== */
+.btn-primary {
+  display: block; width: 100%; background: var(--primary); color: white; border: none; padding: 16px;
+  font-family: 'Noto Serif JP', serif; font-size: 1rem; font-weight: 500; letter-spacing: 0.25em;
+  cursor: pointer; margin-top: 28px; transition: background 0.2s; padding-left: 0.25em;
+}
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+.btn-primary:disabled { background: var(--ink-soft); cursor: not-allowed; opacity: 0.5; }
+.btn-secondary {
+  flex: 1; min-width: 130px; background: white; color: var(--primary); border: 1px solid var(--primary);
+  padding: 11px 14px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--primary); color: white; }
+.btn-tertiary {
+  background: white; color: var(--ink-soft); border: 1px solid var(--line);
+  padding: 8px 14px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem;
+  cursor: pointer; letter-spacing: 0.04em;
+}
+.btn-tertiary:hover { background: var(--line-soft); border-color: var(--ink-soft); }
+.actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+
+/* ===== History indicator ===== */
+.history-status {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 20px; padding: 12px 16px; background: rgba(196, 146, 58, 0.06);
+  border: 1px solid rgba(196, 146, 58, 0.25); font-size: 0.82rem; color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+.history-status-text { display: flex; align-items: center; gap: 8px; flex: 1; }
+.history-status .gold { color: var(--gold); font-weight: 500; }
+
+/* ===== Loading ===== */
+.loading { text-align: center; padding: 56px 20px; background: var(--bg-paper); border: 1px solid var(--line); margin-bottom: 20px; }
+.loading-title { font-family: 'Noto Serif JP', serif; font-size: 1.2rem; color: var(--primary); margin-bottom: 10px; letter-spacing: 0.12em; }
+.loading-dots::after { display: inline-block; width: 1.5em; text-align: left; content: '...'; animation: dots 1.4s steps(3, end) infinite; }
+@keyframes dots { 0% { content: ''; } 33% { content: '・'; } 66% { content: '・・'; } 100% { content: '・・・'; } }
+.loading-sub { font-size: 0.85rem; color: var(--ink-soft); }
+.loading-progress-bar { margin: 20px auto 0; max-width: 280px; height: 5px; background: var(--line-soft); overflow: hidden; }
+.loading-progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+.loading-progress-text { margin-top: 10px; font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.12em; }
+
+/* ===== Notice ===== */
+.notice { background: rgba(122, 140, 92, 0.08); border-left: 3px solid var(--accent); padding: 14px 18px; margin-bottom: 22px; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; }
+.notice-title { font-family: 'Noto Serif JP', serif; font-weight: 600; color: var(--accent-dark); margin-bottom: 5px; font-size: 0.92rem; letter-spacing: 0.06em; }
+.notice strong { color: var(--primary); }
+.error { background: #fef0ec; border-left: 3px solid var(--primary); padding: 14px 18px; color: var(--primary-dark); margin-bottom: 20px; font-size: 0.88rem; white-space: pre-wrap; }
+
+/* ===== Schedule grid (top of STEP 2) ===== */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 70px repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 28px;
+  background: white;
+  border: 1px solid var(--line);
+  padding: 10px;
+}
+.schedule-cell { padding: 6px 4px; font-size: 0.72rem; text-align: center; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+.schedule-cell.header-row { background: var(--line-soft); font-family: 'Noto Serif JP', serif; font-weight: 500; color: var(--ink); font-size: 0.78rem; }
+.schedule-cell.header-col { background: var(--line-soft); font-family: 'Noto Serif JP', serif; font-weight: 500; color: var(--ink); }
+.schedule-cell.label-lunch { background: rgba(122, 140, 92, 0.15); color: var(--accent-dark); }
+.schedule-cell.label-dinner { background: rgba(179, 74, 50, 0.12); color: var(--primary-dark); }
+.schedule-cell.assigned { background: rgba(196, 146, 58, 0.18); color: var(--ink); font-weight: 500; padding: 4px; line-height: 1.3; font-size: 0.7rem; }
+.schedule-cell.empty { background: var(--slot-empty); color: var(--ink-soft); font-size: 0.7rem; }
+
+/* ===== Candidate cards ===== */
+.candidates-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+/* ===== Manual menu section ===== */
+.manual-section {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 2px dashed var(--line);
+}
+.manual-section-hint {
+  font-size: 0.85rem; color: var(--ink-soft);
+  margin-bottom: 14px; line-height: 1.6;
+}
+.manual-add-btn {
+  width: 100%; padding: 14px;
+  background: white; color: var(--accent);
+  border: 1.5px dashed var(--accent);
+  font-size: 0.95rem; font-weight: 500;
+  margin-top: 14px;
+}
+.manual-add-btn:hover { background: var(--accent); color: white; }
+.manual-form {
+  background: var(--bg-paper); border: 1.5px solid var(--accent);
+  padding: 22px 24px; margin-top: 14px;
+  border-radius: 6px;
+}
+.manual-form-title {
+  font-family: 'Noto Serif JP', serif; font-size: 1.1rem; font-weight: 500;
+  color: var(--accent-dark); margin-bottom: 18px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  letter-spacing: 0.06em;
+}
+.manual-items-section { margin-top: 18px; }
+.manual-section-label {
+  display: block; font-weight: 500; font-size: 0.88rem;
+  color: var(--ink); margin-bottom: 8px; letter-spacing: 0.04em;
+}
+.manual-items-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.manual-item-input {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; background: white;
+  border: 1px solid var(--line); border-radius: 4px;
+}
+.manual-item-type {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.78rem; color: var(--ink-soft);
+  flex-shrink: 0; min-width: 55px; letter-spacing: 0.06em;
+}
+.manual-item-input input {
+  flex: 1; border: none; padding: 4px 0;
+  font-size: 0.92rem;
+}
+.manual-item-input input:focus { box-shadow: none; }
+.manual-ingredients-list {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.manual-ingredient-row {
+  display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; align-items: center;
+}
+.manual-ingredient-row input { padding: 8px 10px; }
+.manual-ingredient-remove {
+  background: none; border: 1px solid var(--line);
+  color: var(--primary); padding: 6px 10px; cursor: pointer;
+  font-size: 0.8rem;
+}
+.manual-ingredient-remove:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.manual-save-btn { padding: 14px; font-size: 0.95rem !important; }
+
+/* Manual candidate card differentiator */
+.candidate-card.manual { border-color: var(--accent); background: rgba(122,140,92,0.04); }
+.candidate-card.manual .candidate-num { background: var(--accent); }
+.candidate-card.manual.assigned { border-color: var(--gold); background: rgba(196,146,58,0.04); }
+.candidate-card.manual.assigned .candidate-num { background: var(--gold); }
+.manual-tag {
+  display: inline-block; font-size: 0.7rem; padding: 2px 7px;
+  background: rgba(122,140,92,0.18); color: var(--accent-dark);
+  margin-left: 4px;
+}
+.candidate-delete-btn {
+  background: none; border: 1px solid var(--line); color: var(--ink-soft);
+  padding: 5px 10px; cursor: pointer; font-size: 0.78rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.candidate-delete-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+@media (max-width: 720px) {
+  .manual-items-grid { grid-template-columns: 1fr; }
+  .manual-ingredient-row { grid-template-columns: 1fr 1fr auto; }
+}
+.candidate-card {
+  border: 1px solid var(--line); background: white; padding: 16px 18px;
+  display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start;
+  transition: border-color 0.2s, background 0.2s;
+}
+.candidate-card.assigned { border-color: var(--gold); background: rgba(196, 146, 58, 0.04); }
+.candidate-card-main { min-width: 0; }
+.candidate-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.candidate-num { font-family: 'Noto Serif JP', serif; font-size: 0.75rem; background: var(--ink); color: white; padding: 3px 9px; min-width: 38px; text-align: center; letter-spacing: 0.05em; }
+.candidate-card.assigned .candidate-num { background: var(--gold); }
+.candidate-info { font-size: 0.78rem; color: var(--ink-soft); }
+.candidate-tag { display: inline-block; font-size: 0.7rem; padding: 2px 7px; background: var(--line-soft); color: var(--ink-soft); margin-left: 4px; }
+.candidate-tag.yakuzen { background: rgba(122, 140, 92, 0.15); color: var(--accent-dark); }
+.candidate-tag.event { background: rgba(196, 146, 58, 0.18); color: #8a6515; }
+.candidate-items { list-style: none; }
+.candidate-item { font-size: 0.88rem; padding: 3px 0; display: flex; gap: 8px; }
+.candidate-item-type { flex-shrink: 0; font-family: 'Noto Serif JP', serif; font-size: 0.7rem; background: var(--line-soft); color: var(--ink-soft); padding: 1px 6px; min-width: 50px; text-align: center; align-self: flex-start; margin-top: 2px; letter-spacing: 0.05em; }
+.candidate-item-name { flex: 1; line-height: 1.5; }
+.candidate-yakuzen { margin-top: 8px; padding: 6px 10px; background: rgba(122, 140, 92, 0.08); border-left: 2px solid var(--accent); font-size: 0.78rem; color: var(--accent-dark); line-height: 1.5; }
+.candidate-actions { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 160px; }
+.candidate-actions select { font-size: 0.82rem; padding: 8px 10px; }
+.recipe-toggle { font-size: 0.78rem; background: none; border: 1px solid var(--line); color: var(--ink-soft); padding: 5px 10px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+.recipe-toggle:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.recipe-detail { display: none; grid-column: 1 / -1; margin-top: 10px; padding: 12px 14px; background: var(--bg-paper); border: 1px dashed var(--line); font-size: 0.85rem; }
+.recipe-detail.open { display: block; }
+.recipe-section-title { font-family: 'Noto Serif JP', serif; font-size: 0.82rem; color: var(--primary); margin-bottom: 6px; margin-top: 12px; letter-spacing: 0.06em; }
+.recipe-section-title:first-child { margin-top: 0; }
+.ingredients-table { width: 100%; font-size: 0.82rem; border-collapse: collapse; }
+.ingredients-table td { padding: 3px 0; border-bottom: 1px dotted var(--line-soft); vertical-align: top; }
+.ingredients-table td:last-child { text-align: right; color: var(--ink-soft); white-space: nowrap; padding-left: 10px; }
+.recipe-text { font-size: 0.85rem; line-height: 1.8; color: var(--ink); white-space: pre-wrap; }
+
+/* ===== A4 confirmed schedule ===== */
+.a4-sheet {
+  background: white; border: 1px solid var(--line); padding: 20px 18px; margin-bottom: 16px;
+}
+.a4-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.a4-table th, .a4-table td { border: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+.a4-table th { background: var(--line-soft); font-family: 'Noto Serif JP', serif; font-weight: 500; color: var(--ink); font-size: 0.78rem; text-align: center; }
+.a4-table th.day-header { width: 12%; }
+.a4-table th.lunch-header { background: rgba(122, 140, 92, 0.18); }
+.a4-table th.dinner-header { background: rgba(179, 74, 50, 0.15); }
+.a4-cell { min-height: 80px; position: relative; }
+.a4-cell-name { font-weight: 500; color: var(--ink); margin-bottom: 4px; line-height: 1.4; font-size: 0.82rem; }
+.a4-cell-items { font-size: 0.72rem; color: var(--ink-soft); line-height: 1.5; margin-bottom: 4px; }
+.a4-cell-ingredients { font-size: 0.7rem; color: var(--ink-soft); line-height: 1.4; padding-top: 4px; border-top: 1px dotted var(--line-soft); margin-top: 4px; }
+.a4-cell.cookdeli { background: rgba(212, 167, 106, 0.12); }
+.a4-cell.cookdeli .cookdeli-text { font-family: 'Noto Serif JP', serif; color: var(--cookdeli); font-weight: 500; font-size: 0.95rem; text-align: center; padding: 16px 4px; }
+.a4-cell.empty { background: var(--slot-empty); }
+.a4-cell.empty .empty-text { color: var(--ink-soft); font-style: italic; font-size: 0.75rem; text-align: center; padding: 16px 4px; }
+.a4-cell-edit { width: 100%; min-height: 70px; border: 1px solid var(--line); background: rgba(255, 255, 200, 0.3); padding: 6px; font-size: 0.78rem; font-family: inherit; line-height: 1.5; resize: vertical; }
+
+/* ===== Shopping list ===== */
+.day-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; align-items: center; }
+.day-filter label { margin-bottom: 0; }
+.day-filter select { width: auto; min-width: 140px; }
+.shopping-section { margin-bottom: 26px; }
+.shopping-category { font-family: 'Noto Serif JP', serif; font-size: 1.05rem; font-weight: 500; color: var(--primary); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px dotted var(--line); letter-spacing: 0.06em; }
+.shopping-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 24px; }
+.shopping-item { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; font-size: 0.9rem; border-bottom: 1px dotted var(--line-soft); gap: 10px; }
+.shopping-name { color: var(--ink); }
+.shopping-amount { color: var(--ink-soft); font-size: 0.83rem; flex-shrink: 0; }
+.shopping-meal-list { background: rgba(196, 146, 58, 0.05); border: 1px solid rgba(196, 146, 58, 0.2); padding: 12px 16px; margin-bottom: 22px; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.7; }
+
+.shopping-controls { margin-bottom: 24px; }
+.shopping-meal-checkboxes {
+  background: rgba(196, 146, 58, 0.05);
+  border: 1px solid rgba(196, 146, 58, 0.25);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+.shopping-meal-checkboxes-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--primary);
+  margin-bottom: 10px;
+  letter-spacing: 0.06em;
+}
+.shopping-meal-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--line-soft);
+  align-items: center;
+}
+.shopping-meal-row:last-child { border-bottom: none; }
+.shopping-meal-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; font-size: 0.85rem; }
+.shopping-meal-row input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.shopping-meal-date { font-family: 'Noto Serif JP', serif; font-weight: 500; color: var(--ink); min-width: 70px; }
+.shopping-meal-type { font-size: 0.72rem; padding: 2px 8px; letter-spacing: 0.1em; }
+.shopping-meal-type.lunch { background: rgba(122, 140, 92, 0.18); color: var(--accent-dark); }
+.shopping-meal-type.dinner { background: rgba(179, 74, 50, 0.15); color: var(--primary-dark); }
+.shopping-meal-name { color: var(--ink); font-size: 0.85rem; }
+
+.shopping-bulk-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.shopping-summary {
+  background: rgba(122, 140, 92, 0.08);
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+  color: var(--accent-dark);
+}
+
+/* ===== Footer ===== */
+.footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.12em; line-height: 2; }
+.footer-philosophy { font-family: 'Noto Serif JP', serif; color: var(--gold); font-size: 0.82rem; letter-spacing: 0.22em; }
+
+/* ===== Print ===== */
+@media print {
+  body { background: white; padding: 8px; }
+  .no-print { display: none !important; }
+  .card { border: 1px solid #999; padding: 12px; page-break-inside: avoid; }
+  .card::before { display: none; }
+  .a4-sheet { border: none; padding: 0; }
+  @page { size: A4 landscape; margin: 10mm; }
+  .brand { margin-bottom: 16px; padding-bottom: 12px; }
+  .brand h1 { font-size: 1.5rem; }
+}
+
+/* ===== Recipe Print Sheet ===== */
+.recipe-print-container { display: none; }
+.recipe-print-mode .recipe-print-container { display: block; }
+.recipe-print-mode body > .container > *:not(.recipe-print-container) { display: none !important; }
+.recipe-print-mode body { background: white; }
+
+.recipe-sheet {
+  page-break-after: always;
+  padding: 18mm 16mm;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: #2c241e;
+  background: white;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+.recipe-sheet:last-child { page-break-after: auto; }
+
+.recipe-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 3px double #b34a32;
+}
+.recipe-date-block { display: flex; align-items: baseline; gap: 14px; }
+.recipe-date {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.6rem; font-weight: 600; color: #2c241e;
+  letter-spacing: 0.04em;
+}
+.recipe-meal-badge {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.1rem; font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 4px;
+  letter-spacing: 0.15em;
+}
+.recipe-meal-badge.lunch { background: #e8efd9; color: #5d6d44; }
+.recipe-meal-badge.dinner { background: #f5d9d1; color: #8c3a26; }
+.recipe-brand-block {
+  text-align: right;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.72rem; color: #5c4d42; line-height: 1.5;
+}
+.recipe-brand-block .gold { color: #c4923a; font-weight: 500; letter-spacing: 0.18em; }
+.recipe-event-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #fff8dc, #faf0c8);
+  border: 1px solid #c4923a;
+  color: #8a6515;
+  font-size: 0.78rem; font-weight: 500;
+  padding: 3px 12px;
+  margin-left: 10px;
+}
+
+.recipe-menu-title-wrap {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px; padding: 14px 18px;
+  background: linear-gradient(135deg, #faf5ec 0%, #fdf9f1 100%);
+  border-left: 6px solid #b34a32;
+}
+.recipe-menu-emoji { font-size: 2.6rem; line-height: 1; }
+.recipe-menu-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.4rem; font-weight: 600; color: #2c241e;
+  letter-spacing: 0.04em; flex: 1;
+}
+.recipe-menu-meta { font-size: 0.85rem; color: #5c4d42; margin-top: 4px; }
+.recipe-yakuzen-tag {
+  display: inline-block; background: rgba(122,140,92,0.18); color: #5d6d44;
+  padding: 3px 12px; font-size: 0.78rem; font-weight: 500;
+  margin-top: 6px;
+}
+
+.recipe-items-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  margin-bottom: 18px;
+}
+.recipe-item-card {
+  text-align: center; padding: 12px 6px;
+  border-radius: 8px;
+  border: 1.5px solid;
+}
+.recipe-item-card.shushoku { background: #fff8e8; border-color: #f0c75e; }
+.recipe-item-card.shusai { background: #fde8e0; border-color: #d97757; }
+.recipe-item-card.fukusai1 { background: #ecf3df; border-color: #95a86d; }
+.recipe-item-card.fukusai2 { background: #e4ecd4; border-color: #7a8c5c; }
+.recipe-item-card.dessert { background: #fae8f0; border-color: #d68aa8; }
+.recipe-item-card.shirumono { background: #e0eef5; border-color: #5e95b8; }
+.recipe-item-emoji { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+.recipe-item-type {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.72rem; color: #5c4d42; letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.recipe-item-name {
+  font-size: 0.85rem; font-weight: 500; color: #2c241e; line-height: 1.4;
+}
+
+.recipe-section {
+  margin-bottom: 16px;
+}
+.recipe-section-heading {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.05rem; font-weight: 600; color: #b34a32;
+  padding-bottom: 4px; margin-bottom: 10px;
+  border-bottom: 2px solid #d9cfbf;
+  letter-spacing: 0.08em;
+}
+.recipe-section-heading .emoji { margin-right: 6px; }
+
+.recipe-ingredients-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px;
+  font-size: 0.95rem;
+}
+.recipe-ingredient-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 6px; border-bottom: 1px dotted #ebe2d2;
+}
+.recipe-ingredient-name { color: #2c241e; }
+.recipe-ingredient-amount { color: #5c4d42; font-size: 0.88rem; }
+
+.recipe-method-text {
+  font-size: 0.95rem; line-height: 1.85; color: #2c241e;
+  white-space: pre-wrap;
+  padding: 10px 14px;
+  background: #fdf9f1;
+  border-radius: 6px;
+  border: 1px solid #ebe2d2;
+}
+.recipe-method-text strong { color: #b34a32; font-weight: 600; }
+
+.recipe-footer {
+  margin-top: 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #d9cfbf;
+  font-size: 0.72rem; color: #5c4d42;
+}
+.recipe-footer-philosophy { color: #c4923a; font-family: 'Noto Serif JP', serif; letter-spacing: 0.12em; }
+.recipe-page-num { font-size: 0.75rem; color: #5c4d42; }
+
+@media print {
+  .recipe-print-mode .recipe-print-container { display: block !important; }
+  .recipe-print-mode body { padding: 0 !important; margin: 0 !important; }
+  .recipe-print-mode .container { max-width: none; margin: 0; padding: 0; }
+  .recipe-sheet { padding: 12mm 10mm; min-height: auto; }
+  @page { size: A4 portrait; margin: 0; }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 720px) {
+  body { padding: 16px 10px 32px; }
+  .form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .card { padding: 20px 18px; }
+  .card::before { top: 4px; left: 4px; right: 4px; bottom: 4px; }
+  .brand h1 { font-size: 1.7rem; letter-spacing: 0.08em; }
+  .candidate-card { grid-template-columns: 1fr; }
+  .candidate-actions { min-width: 100%; flex-direction: row; flex-wrap: wrap; }
+  .candidate-actions select { flex: 1 1 100%; }
+  .actions { flex-direction: column; }
+  .btn-secondary { min-width: 100%; }
+  .schedule-grid { grid-template-columns: 50px repeat(7, 1fr); gap: 2px; padding: 6px; font-size: 0.65rem; }
+  .schedule-cell { padding: 3px; min-height: 30px; font-size: 0.65rem; }
+  .schedule-cell.assigned { font-size: 0.6rem; }
+  .a4-table { font-size: 0.7rem; }
+  .a4-table th, .a4-table td { padding: 5px; }
+  .a4-cell-name { font-size: 0.78rem; }
+  .a4-cell-items, .a4-cell-ingredients { font-size: 0.68rem; }
+  .day-filter { flex-direction: column; align-items: stretch; }
+  .day-filter select { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="brand">
+    <div class="brand-tag" contenteditable="true" data-brand-key="tag" spellcheck="false">社 会 福 祉 法 人 　 天 祐 会</div>
+    <h1 contenteditable="true" data-brand-key="title" spellcheck="false">献立工房</h1>
+    <div class="brand-sub" contenteditable="true" data-brand-key="sub" spellcheck="false">グループホーム献立作成支援ツール</div>
+    <div class="brand-philosophy" contenteditable="true" data-brand-key="philosophy" spellcheck="false">— 楽しく食べる環境づくり —</div>
+    <div class="brand-edit-hint no-print">✎ 各テキストをクリックすると編集できます</div>
+  </header>
+
+  <!-- ============ STEP 1: Input ============ -->
+  <section id="formSection" class="card no-print">
+    <div class="card-label">S T E P . 1 ／ 入 力</div>
+    <h2>条件を入力する</h2>
+
+    <div class="history-status" id="historyStatus">
+      <div class="history-status-text">
+        <span>📚 採用履歴：</span>
+        <span class="gold" id="historyCount">0件</span>
+        <span>（過去3ヶ月分をAIが参照し、重複を避けます）</span>
+      </div>
+      <button class="btn-tertiary" onclick="showHistoryModal()">履歴を確認</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="startDate">開始日 <span class="hint">月曜日</span></label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="form-row">
+        <label for="people">人数 <span class="hint">入居者＋必要に応じて職員分</span></label>
+        <input type="number" id="people" value="9" min="1" max="50">
+      </div>
+      <div class="form-row">
+        <label for="budget">1食1人あたりの予算 <span class="hint">円</span></label>
+        <input type="number" id="budget" value="350" min="100" max="2000" step="10">
+        <div class="budget-display" id="budgetDisplay">合計：1食 3,150円（9名分）</div>
+      </div>
+      <div class="form-row">
+        <label>目標栄養 <span class="hint">参考値</span></label>
+        <input type="text" value="500〜600kcal／たんぱく質 60g" disabled style="background: var(--line-soft); color: var(--ink-soft);">
+      </div>
+
+      <div class="form-row full">
+        <label for="keywords">キーワード <span class="hint">献立に活かされます。複数可</span></label>
+        <input type="text" id="keywords" placeholder="例：旬の野菜、行事食、郷土料理、懐かしい味">
+        <div class="example-keywords" id="keywordTags"></div>
+      </div>
+
+      <div class="form-row full">
+        <label for="preferences">利用者様の好み <span class="hint">味付け・好きなメニューなど</span></label>
+        <textarea id="preferences" placeholder="例：薄味好み、辛いものは控えめ、煮物が好き、麺類は温かいうどんが人気"></textarea>
+      </div>
+
+      <div class="form-row full">
+        <label for="notes">配慮事項 <span class="hint">アレルギー・特別な日など（最優先で反映）</span></label>
+        <textarea id="notes" placeholder="例：そばアレルギー対応、5/8は母の日のお祝いメニュー、刺身は控える"></textarea>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="generateMenu()">献　立　候　補　を　作　成　す　る</button>
+  </section>
+
+  <!-- ============ Loading ============ -->
+  <div id="loading" class="loading" style="display:none;">
+    <div class="loading-title" id="loadingTitle">献立を考案中<span class="loading-dots"></span></div>
+    <div class="loading-sub" id="loadingSub">少々お待ちください</div>
+    <div class="loading-progress-bar"><div class="loading-progress-fill" id="loadingFill"></div></div>
+    <div class="loading-progress-text" id="loadingProgressText">0 / 7</div>
+  </div>
+
+  <!-- ============ Error ============ -->
+  <div id="error" class="error" style="display:none;"></div>
+
+  <!-- ============ STEP 2: Candidates ============ -->
+  <section id="candidatesSection" style="display:none;">
+    <div class="notice no-print">
+      <div class="notice-title">📝 STEP 2 ／ 14食の候補から選んで割り当て</div>
+      AIが14食の候補を考案しました。各候補の<strong>「割当先」</strong>を選ぶと、上の予定表に反映されます。<strong>昼が肉なら夕は魚</strong>のように主菜が重ならないよう振り分けてください。割り当てない候補は採用されません。
+    </div>
+
+    <div class="card">
+      <div class="card-label">S T E P . 2 ／ 振 り 分 け</div>
+      <h2>1週間の予定表</h2>
+      <div id="scheduleGrid" class="schedule-grid"></div>
+
+      <div class="card-label" style="margin-top: 28px;">候 補 一 覧</div>
+      <h2 style="font-size: 1.2rem;">14食の献立候補</h2>
+      <div id="candidatesList" class="candidates-list"></div>
+
+      <!-- ===== 手動献立追加セクション ===== -->
+      <div class="manual-section no-print">
+        <div class="card-label" style="margin-top: 28px;">手 動 で 献 立 を 追 加</div>
+        <h2 style="font-size: 1.2rem;">手動メニュー（自由入力）</h2>
+        <p class="manual-section-hint">14食の候補に加えて、手作りメニューを自由に追加できます。追加した献立は予定表の好きな枠に割り当てられます。</p>
+
+        <div id="manualMenusList" class="candidates-list"></div>
+
+        <button class="btn-secondary manual-add-btn" onclick="openManualMenuForm()">＋ 新しい献立を入力する</button>
+
+        <!-- 手動入力フォーム（初期は非表示） -->
+        <div id="manualMenuForm" class="manual-form" style="display:none;">
+          <h3 class="manual-form-title">✏️ 手動献立の入力</h3>
+
+          <div class="form-grid">
+            <div class="form-row">
+              <label>献立名 <span class="hint">必須・主菜名や愛称</span></label>
+              <input type="text" id="manualName" placeholder="例：カレーライス、おふくろの煮物">
+            </div>
+            <div class="form-row">
+              <label>カテゴリ <span class="hint">献立全体の分類</span></label>
+              <select id="manualCategory">
+                <option value="肉">肉</option>
+                <option value="魚">魚</option>
+                <option value="麺">麺</option>
+                <option value="丼">丼</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="manual-items-section">
+            <label class="manual-section-label">献立の構成（料理名）<span class="hint">空欄可</span></label>
+            <div class="manual-items-grid">
+              <div class="manual-item-input">
+                <span class="manual-item-type">主食</span>
+                <input type="text" id="manualItem0" placeholder="例：白ご飯">
+              </div>
+              <div class="manual-item-input">
+                <span class="manual-item-type">主菜</span>
+                <input type="text" id="manualItem1" placeholder="例：カレー">
+              </div>
+              <div class="manual-item-input">
+                <span class="manual-item-type">副菜1</span>
+                <input type="text" id="manualItem2" placeholder="例：サラダ">
+              </div>
+              <div class="manual-item-input">
+                <span class="manual-item-type">副菜2</span>
+                <input type="text" id="manualItem3" placeholder="例：漬物">
+              </div>
+              <div class="manual-item-input">
+                <span class="manual-item-type">
+                  <select id="manualItem4Type" style="width: auto; padding: 2px 6px; font-size: 0.78rem;">
+                    <option value="デザート">デザート</option>
+                    <option value="汁物">汁物</option>
+                  </select>
+                </span>
+                <input type="text" id="manualItem4" placeholder="例：プリン">
+              </div>
+            </div>
+          </div>
+
+          <div class="manual-items-section">
+            <label class="manual-section-label">材料リスト <span class="hint">食材購入リストに反映されます</span></label>
+            <div id="manualIngredientsList" class="manual-ingredients-list"></div>
+            <button class="btn-tertiary" onclick="addManualIngredient()" style="margin-top: 6px;">＋ 材料を追加</button>
+          </div>
+
+          <div class="manual-items-section">
+            <label class="manual-section-label">レシピ（任意）<span class="hint">空欄の場合、印刷時は「現場で確認」と表示されます</span></label>
+            <textarea id="manualRecipe" placeholder="例：&#10;【主菜：カレー】&#10;1. 肉と野菜を炒める&#10;2. 水を加えて20分煮込む&#10;3. ルウを溶かして混ぜる" rows="6" style="font-family: 'Noto Sans JP', sans-serif; font-size: 0.92rem;"></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary manual-save-btn" onclick="saveManualMenu()" style="flex: 1; margin-top: 0;">この献立を追加する</button>
+            <button class="btn-secondary" onclick="cancelManualMenuForm()">キャンセル</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions no-print">
+        <button class="btn-secondary" onclick="autoAssign()">⚡　自動で振り分け</button>
+        <button class="btn-secondary" onclick="clearAssignments()">×　振り分けをすべて解除</button>
+        <button class="btn-secondary" onclick="resetAll()">↻　最初からやり直す</button>
+      </div>
+      <button class="btn-primary no-print" onclick="confirmSchedule()" style="margin-top: 16px;">献　立　を　確　定　す　る</button>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3: Confirmed schedule (A4) ============ -->
+  <section id="confirmedSection" style="display:none;">
+    <div class="notice no-print">
+      <div class="notice-title">✅ STEP 3 ／ 確定献立表（A4横向き）</div>
+      月〜金で空白の枠は<strong style="color: var(--cookdeli);">「クックデリ」</strong>と自動入力されます。各セルはクリックで編集可能です。土日の空白は手動で記入してください。
+    </div>
+
+    <div class="card">
+      <div class="card-label">S T E P . 3 ／ 確 定 献 立 表</div>
+      <h2 id="confirmedTitle">確定献立</h2>
+      <div class="a4-sheet" id="a4Sheet"></div>
+
+      <div class="actions no-print">
+        <button class="btn-secondary" onclick="window.print()">🖨　献立表を印刷</button>
+        <button class="btn-secondary" onclick="printRecipes()">📖　レシピを印刷</button>
+        <button class="btn-secondary" onclick="downloadCSV('schedule')">📋　献立表をCSV保存</button>
+        <button class="btn-secondary" onclick="goToShoppingList()">🛒　食材購入リストへ</button>
+        <button class="btn-secondary" onclick="backToCandidates()">↩　振り分けに戻る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4: Shopping list ============ -->
+  <section id="shoppingSection" style="display:none;">
+    <div class="card">
+      <div class="card-label">S T E P . 4 ／ 食 材 購 入 リ ス ト</div>
+      <h2>食材購入リスト</h2>
+
+      <div class="shopping-controls no-print">
+        <div class="shopping-meal-checkboxes" id="shoppingMealCheckboxes"></div>
+        <div class="shopping-bulk-actions">
+          <button class="btn-tertiary" onclick="toggleAllShoppingChecks(true)">✓ 全て選択</button>
+          <button class="btn-tertiary" onclick="toggleAllShoppingChecks(false)">× 全て解除</button>
+        </div>
+      </div>
+
+      <div id="shoppingList"></div>
+
+      <div class="actions no-print">
+        <button class="btn-secondary" onclick="window.print()">🖨　印刷する</button>
+        <button class="btn-secondary" onclick="downloadCSV('shopping')">📋　CSV保存</button>
+        <button class="btn-secondary" onclick="backToConfirmed()">↩　献立表に戻る</button>
+        <button class="btn-secondary" onclick="resetAll()">↻　最初から</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Recipe Print Container ============ -->
+  <div class="recipe-print-container" id="recipePrintContainer"></div>
+
+  <footer class="footer">
+    社会福祉法人 天祐会<br>
+    <span class="footer-philosophy">七 福 神 グ ル ー プ</span>
+  </footer>
+</div>
+
+<script>
+// ==================================================================
+//  献立工房 v4 — 全要件統合版
+// ==================================================================
+
+// ===== 薬膳カレンダー（月別データ） =====
+const YAKUZEN_DATA = {
+  1: { season:'冬', theme:'腎を補い体を温める', point:'寒さで腎の働きが低下。黒い食材で腎を養い、温性の食材で体を内側から温める',
+       foods:'鮭、ぶり、海老、鶏肉、黒豆、小豆、人参、ごぼう、かぼちゃ、白菜、大根、長ねぎ、生姜、にんにく、みかん、りんご、もち米、黒米、くるみ、栗、なつめ、クコの実',
+       herbs:'なつめ、クコの実、黒ごま、シナモン、陳皮' },
+  2: { season:'冬→春', theme:'肝を巡らせ春に備える', point:'立春で陽気が増す。柑橘類や香味野菜で気を巡らせ、肝の働きを助ける',
+       foods:'いわし、鯛、菜の花、春菊、せり、わけぎ、玉ねぎ、セロリ、いよかん、デコポン、八朔、はちみつ、しそ、みつば、生姜',
+       herbs:'陳皮、薄荷、しそ、菊花' },
+  3: { season:'春', theme:'肝を養い気血を巡らせる', point:'肝の気が高ぶる時期。緑の食材と香味野菜で発散を助ける',
+       foods:'鯛、あさり、はまぐり、菜の花、ふきのとう、たらの芽、うど、わらび、ぜんまい、新キャベツ、新玉ねぎ、いちご、晩柑、しそ、みつば、にら、玄米',
+       herbs:'菊花、ジャスミン茶、しそ、薄荷' },
+  4: { season:'春', theme:'肝の熱を冷まし血を補う', point:'目の疲れ・肌荒れに注意。血を補い肝を養う',
+       foods:'イカ、鯛、たけのこ、菜の花、ほうれん草、人参、春菊、セロリ、しそ、生姜、クコの実、なつめ、はと麦、菊花茶',
+       herbs:'クコの実、なつめ、菊花、はと麦' },
+  5: { season:'春→初夏', theme:'心に負担をかけない、湿を除く', point:'立夏で心の熱が高まる。赤い食材で血を養い、利尿作用で湿を出す',
+       foods:'サバ、アスパラガス、新玉ねぎ、きゅうり、トマト、セロリ、豆苗、みょうが、しそ、びわ、さくらんぼ、豆腐、はと麦、そら豆',
+       herbs:'はと麦、ジャスミン茶、緑茶、菊花' },
+  6: { season:'梅雨', theme:'湿熱を逃がし脾を整える', point:'梅雨の湿気で脾が弱る。利尿・除湿作用のある食材を意識',
+       foods:'きゅうり、冬瓜、もやし、生姜、梅、はと麦、小豆、コーン、とうもろこし、しょうが',
+       herbs:'はと麦、コーン茶、プーアル茶、よもぎ茶、陳皮' },
+  7: { season:'夏', theme:'気と津液を補う', point:'本格的な暑さ。発汗で失われる気と潤いを補給',
+       foods:'ゴーヤ、なす、トマト、きゅうり、すいか、ピーマン、おくら、レモン、梅干し、はと麦、緑豆、豆腐、鴨肉',
+       herbs:'はと麦、菊花茶、緑茶、ミントティー' },
+  8: { season:'夏', theme:'暑邪と湿を取り除く', point:'酷暑で気陰両虚。水分と電解質を意識し、瓜類を活用',
+       foods:'冬瓜、すいか、メロン、きゅうり、なす、トマト、ゴーヤ、おくら、もやし、みょうが、しそ、レモン、桃、ぶどう、豆腐',
+       herbs:'菊花、はと麦、緑茶、紫蘇' },
+  9: { season:'夏→秋', theme:'肺を潤し乾燥に備える', point:'秋の入口で乾燥が始まる。白い食材で肺を潤す',
+       foods:'梨、りんご、柿、ぶどう、栗、さつまいも、れんこん、白きくらげ、山芋、銀杏、白ごま、はちみつ、豆乳、豆腐、鴨肉',
+       herbs:'白きくらげ、はちみつ、菊花、なつめ' },
+  10: { season:'秋', theme:'肺を養い気を補う', point:'本格的な秋。白い食材と温性の食材で潤いを補う',
+        foods:'秋鮭、さんま、栗、さつまいも、かぼちゃ、れんこん、ごぼう、しめじ、舞茸、しいたけ、梨、柿、ぶどう、銀杏、白ごま、山芋、ぎんなん',
+        herbs:'白きくらげ、なつめ、はちみつ、クコの実' },
+  11: { season:'晩秋', theme:'腎を補い冬に備える', point:'冬支度。黒い食材と根菜で腎を養う',
+        foods:'ぶり、鮭、牡蠣、海老、れんこん、ごぼう、人参、大根、白菜、長ねぎ、しいたけ、しめじ、舞茸、かぼちゃ、栗、黒ごま、くるみ、りんご、柿',
+        herbs:'クコの実、なつめ、黒ごま、くるみ、陳皮' },
+  12: { season:'冬', theme:'陽気を養い体を温める', point:'冬至前後。温性食材で陽気を補い、寒邪を防ぐ',
+        foods:'ぶり、鮭、牡蠣、海老、鶏肉、羊肉、かぼちゃ、白菜、大根、長ねぎ、にら、生姜、にんにく、りんご、みかん、ゆず、もち米（※餅は禁止）、黒豆、くるみ、栗',
+        herbs:'なつめ、クコの実、シナモン、生姜、陳皮' }
+};
+
+// ===== 鹿児島郷土料理 =====
+const KAGOSHIMA_FOODS = '鶏飯、さつま揚げ、きびなご料理、豚骨煮、酒寿司、つけ揚げ、がね、こが焼き、さつま汁、鶏ぼっけ、白熊（夏）、げたんは、ふくれ菓子、いこ餅（※餅禁止のため避ける）、芋ようかん、かるかん、かいのこ汁、しろもじ汁、こさん竹のたけのこ料理、新茶料理、黒砂糖を使った料理、麦味噌料理';
+
+// ===== 行事カレンダー（月日ベース） =====
+const EVENT_CALENDAR = {
+  '1-1': '元日（おせち）', '1-7': '七草', '1-11': '鏡開き（ぜんざい）',
+  '2-3': '節分（恵方巻・いわし）', '2-14': 'バレンタイン',
+  '3-3': 'ひな祭り（ちらし寿司・はまぐり）', '3-21': '春分の日（ぼたもち）',
+  '4-8': '花まつり', '5-5': 'こどもの日（柏餅は餅禁止のため代替）',
+  '5-9': '母の日', '6-21': '夏至',
+  '7-7': '七夕（そうめん）', '7-25': '土用の丑の日（うなぎ）',
+  '8-15': 'お盆',
+  '9-19': '敬老の日（お祝いメニュー）', '9-23': '秋分の日（おはぎ）',
+  '10-31': 'ハロウィン（かぼちゃ料理）', '11-15': '七五三（赤飯）',
+  '12-22': '冬至（かぼちゃ・ゆず湯）', '12-25': 'クリスマス', '12-31': '大晦日（年越しそば）'
+};
+
+// ===== State =====
+let candidates = [];        // 14食の候補
+let manualMenus = [];       // 手動で追加された献立
+let nextManualId = 1001;    // 手動献立のID（1001から開始、自動の#1〜#14と区別）
+let manualIngredientCount = 0; // フォーム内の材料行カウンタ
+let assignments = {};       // { "yyyy-mm-dd-lunch": candidateId, ... }
+let confirmedSchedule = null;
+let weekStartDate = null;
+
+// 自動候補と手動献立を統合して検索するヘルパー
+function getMenuById(id) {
+  return getMenuById(id) || manualMenus.find(m => m.id === id);
+}
+function getAllMenus() {
+  return [...candidates, ...manualMenus];
+}
+
+// ===== Utility =====
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function getNextMonday() {
+  const t = new Date(); const d = t.getDay();
+  const diff = d === 1 ? 0 : (d === 0 ? 1 : 8 - d);
+  const m = new Date(t); m.setDate(t.getDate() + diff); m.setHours(0,0,0,0);
+  return m;
+}
+function formatDateInput(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function formatDateLabel(d) { const dows=['日','月','火','水','木','金','土']; return `${d.getMonth()+1}月${d.getDate()}日（${dows[d.getDay()]}）`; }
+function formatDateShort(d) { const dows=['日','月','火','水','木','金','土']; return `${d.getMonth()+1}/${d.getDate()}(${dows[d.getDay()]})`; }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function escapeHtml(s) { if (s==null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function getEventForDate(d) {
+  const key = `${d.getMonth()+1}-${d.getDate()}`;
+  return EVENT_CALENDAR[key] || null;
+}
+
+// ===== History (localStorage) =====
+const HISTORY_KEY = 'kondate_kobo_history_v1';
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    // 3ヶ月以上古いものを削除
+    const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+    const filtered = arr.filter(item => new Date(item.date).getTime() >= cutoff);
+    if (filtered.length !== arr.length) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered));
+    }
+    return filtered;
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveToHistory(items) {
+  // items: [{ date: 'yyyy-mm-dd', meal: 'lunch'|'dinner', name: '主菜名' }, ...]
+  try {
+    const current = loadHistory();
+    const merged = [...current, ...items];
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(merged));
+    updateHistoryStatus();
+  } catch (e) {
+    console.error('履歴保存に失敗:', e);
+  }
+}
+
+function getRecentMainDishes() {
+  // 過去3ヶ月の主菜名のユニーク一覧
+  const history = loadHistory();
+  const set = new Set();
+  history.forEach(h => { if (h.name) set.add(h.name); });
+  return Array.from(set);
+}
+
+function isMainIngredient(name) {
+  // 調味料・基本調味料・出汁類は重複OK（除外）
+  const exclude = /醤油|味噌|塩|砂糖|みりん|酒|酢|油|だし|出汁|ソース|ケチャップ|マヨ|ドレッシング|ごま|片栗|小麦粉|薄力|強力|パン粉|きな粉|スパイス|胡椒|唐辛子|こしょう|コショウ|サラダ油|ごま油|オリーブ|バター|マーガリン|牛乳|豆乳|生姜|しょうが|にんにく|ニンニク|わさび|からし|めんつゆ|ぽん酢|ポン酢|ほんだし|顆粒|鶏ガラ|コンソメ|ブイヨン|寒天|ゼラチン|お湯|^水$|料理酒|本みりん|水飴|蜂蜜|はちみつ|海苔|のり|わかめ|乾燥|かつお節|かつおぶし|鰹節|削り|ゆかり|青のり|ねぎ$|ネギ$|長ねぎ|長ネギ|細ねぎ|小ねぎ|みつば|三つ葉|大葉|しそ|シソ|紫蘇|柚子|ゆず|レモン|すだち|かぼす|生クリーム|抹茶|ふりかけ|生薬|クコ|なつめ|陳皮|はと麦|シナモン/;
+  if (exclude.test(name)) return false;
+  // 米・パン・麺類は主食扱いなので除外
+  if (/米|パン|うどん|そば|スパゲ|パスタ|ラーメン|そうめん|ご飯|麺|ビーフン|フォー|中華麺|焼きそば|お粥/.test(name)) return false;
+  // 卵、豆腐、油揚げなどは重複OK（汎用素材）
+  if (/^(卵|たまご|豆腐|絹豆腐|木綿豆腐|油揚げ|厚揚げ|納豆|高野豆腐|こんにゃく|しらたき|焼き海苔|海苔)$/.test(name.trim())) return false;
+  return true;
+}
+
+function updateHistoryStatus() {
+  const count = loadHistory().length;
+  const el = document.getElementById('historyCount');
+  if (el) el.textContent = `${count}件`;
+}
+
+function showHistoryModal() {
+  const history = loadHistory();
+  if (history.length === 0) {
+    alert('採用履歴はまだありません。');
+    return;
+  }
+  const list = history
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .map(h => `${h.date} ${h.meal==='lunch'?'昼':'夕'}: ${h.name}`)
+    .join('\n');
+  if (confirm(`過去の採用履歴（${history.length}件）：\n\n${list}\n\nすべての履歴を削除しますか？\n（キャンセル：履歴を保持）`)) {
+    localStorage.removeItem(HISTORY_KEY);
+    updateHistoryStatus();
+    alert('履歴を削除しました。');
+  }
+}
+
+// ===== Initialization =====
+function initKeywordTags() {
+  const tags = ['旬の野菜', '旬の魚', '行事食', '郷土料理', '懐かしい味', '彩り', '温かい料理', 'ゆる薬膳'];
+  const container = document.getElementById('keywordTags');
+  tags.forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'example-tag';
+    span.textContent = '＋ ' + tag;
+    span.onclick = () => addKeyword(tag);
+    container.appendChild(span);
+  });
+}
+
+function addKeyword(kw) {
+  const input = document.getElementById('keywords');
+  const cur = input.value.trim();
+  if (cur.includes(kw)) return;
+  input.value = cur ? (cur.endsWith('、')||cur.endsWith(',') ? cur+kw : cur+'、'+kw) : kw;
+}
+
+function updateBudgetDisplay() {
+  const p = parseInt(document.getElementById('people').value) || 0;
+  const b = parseInt(document.getElementById('budget').value) || 0;
+  document.getElementById('budgetDisplay').textContent = `合計：1食 ${(p*b).toLocaleString()}円（${p}名分）`;
+}
+
+document.getElementById('startDate').value = formatDateInput(getNextMonday());
+document.getElementById('people').addEventListener('input', updateBudgetDisplay);
+document.getElementById('budget').addEventListener('input', updateBudgetDisplay);
+updateBudgetDisplay();
+initKeywordTags();
+updateHistoryStatus();
+
+// ===== ヘッダーの編集可能化 =====
+const BRAND_KEY = 'kondate_kobo_brand_v1';
+
+function loadBrandTexts() {
+  try {
+    const raw = localStorage.getItem(BRAND_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    document.querySelectorAll('.brand [contenteditable="true"]').forEach(el => {
+      const key = el.getAttribute('data-brand-key');
+      if (key && data[key]) el.textContent = data[key];
+    });
+  } catch (e) {
+    console.warn('ヘッダー文言の読み込みに失敗:', e);
+  }
+}
+
+function saveBrandTexts() {
+  const data = {};
+  document.querySelectorAll('.brand [contenteditable="true"]').forEach(el => {
+    const key = el.getAttribute('data-brand-key');
+    if (key) data[key] = el.textContent.trim();
+  });
+  try {
+    localStorage.setItem(BRAND_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('ヘッダー文言の保存に失敗:', e);
+  }
+}
+
+document.querySelectorAll('.brand [contenteditable="true"]').forEach(el => {
+  el.addEventListener('blur', saveBrandTexts);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+  });
+});
+
+loadBrandTexts();
+
+// ===== API =====
+// =====================================================
+//  本番運用：Cloudflare Workers プロキシ経由でAPI呼び出し
+// =====================================================
+// AI: Google Gemini API を使用（クレカ不要、無料枠広い）
+// デプロイ手順（README参照）：
+// 1. Google AI Studio で Gemini APIキーを取得
+// 2. Cloudflare Workersでプロキシを作成しデプロイ
+// 3. 発行されたURLを下のWORKER_URLに入れる
+// 4. 本HTMLをGitHub Pagesにアップロード
+// =====================================================
+const WORKER_URL = "https://kondate-kobo.shiramakazuyoshi.workers.dev";  // ← ここを書き換え
+
+async function callClaudeAPI(prompt, maxTokens, retryCount = 0) {
+  const MAX_RETRIES = 5;
+  // WORKER_URLが未設定（プレースホルダのまま）の場合は警告
+  if (WORKER_URL.includes('YOUR-SUBDOMAIN')) {
+    throw new Error('Cloudflare Worker のURLが未設定です。HTMLファイル内の WORKER_URL を実際のWorker URLに書き換えてください。');
+  }
+  try {
+    const r = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // Gemini API向けのリクエスト形式
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature: 0.7
+        }
+      })
+    });
+    // HTTP 429（レート制限）は特別扱い：長めの待機で確実に回復
+    if (r.status === 429) {
+      if (retryCount < MAX_RETRIES) {
+        const wait = 30000 + retryCount * 15000; // 30秒、45秒、60秒、75秒、90秒
+        console.warn(`HTTP 429（レート制限）、${wait/1000}秒待機してリトライします (${retryCount+1}/${MAX_RETRIES})`);
+        await sleep(wait);
+        return callClaudeAPI(prompt, maxTokens, retryCount + 1);
+      }
+      throw new Error(`API応答エラー (HTTP 429)`);
+    }
+    // その他のサーバーエラー
+    if (r.status >= 500) {
+      if (retryCount < MAX_RETRIES) {
+        const wait = 15000 * Math.pow(1.5, retryCount); // 15秒、22.5秒、33秒、50秒、75秒
+        console.warn(`HTTP ${r.status}、${wait/1000}秒待機してリトライします (${retryCount+1}/${MAX_RETRIES})`);
+        await sleep(wait);
+        return callClaudeAPI(prompt, maxTokens, retryCount + 1);
+      }
+      throw new Error(`API応答エラー (HTTP ${r.status})`);
+    }
+    if (!r.ok) {
+      const errText = await r.text().catch(() => '');
+      throw new Error('API応答エラー (HTTP ' + r.status + ')' + (errText ? ': ' + errText.substring(0, 200) : ''));
+    }
+    const data = await r.json();
+    // Gemini APIのレスポンス形式からテキストを取得
+    if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+      throw new Error('API応答にテキストが含まれていません: ' + JSON.stringify(data).substring(0, 200));
+    }
+    const candidate = data.candidates[0];
+    if (!candidate.content || !candidate.content.parts || !Array.isArray(candidate.content.parts)) {
+      throw new Error('API応答の形式が不正です');
+    }
+    return candidate.content.parts.map(p => p.text || '').join('');
+  } catch (err) {
+    const isFetchError = err.message && (err.message.includes('fetch') || err.message.includes('Failed') || err.message.includes('NetworkError'));
+    if (isFetchError && retryCount < MAX_RETRIES) {
+      const wait = 10000 * (retryCount + 1); // 10秒、20秒、30秒、40秒、50秒
+      console.warn(`通信エラー、${wait/1000}秒待機してリトライ (${retryCount+1}/${MAX_RETRIES})`);
+      await sleep(wait);
+      return callClaudeAPI(prompt, maxTokens, retryCount + 1);
+    }
+    throw err;
+  }
+}
+
+function parseJSON(text) {
+  text = text.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+  const f = text.indexOf('{'); const l = text.lastIndexOf('}');
+  if (f !== -1 && l !== -1) text = text.substring(f, l + 1);
+
+  // First attempt: parse as-is
+  try {
+    return JSON.parse(text);
+  } catch (e1) {
+    // Second attempt: repair unescaped newlines, tabs, and quotes within strings
+    try {
+      const repaired = repairJsonStrings(text);
+      return JSON.parse(repaired);
+    } catch (e2) {
+      // Third attempt: try removing the last incomplete element from arrays
+      try {
+        const fixed = removeIncompleteArrayElement(text);
+        return JSON.parse(fixed);
+      } catch (e3) {
+        // Throw the original error
+        throw e1;
+      }
+    }
+  }
+}
+
+function repairJsonStrings(s) {
+  // Walk through characters and escape literal newlines/tabs inside string values
+  let result = '';
+  let inString = false;
+  let escapeNext = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escapeNext) {
+      result += c;
+      escapeNext = false;
+      continue;
+    }
+    if (c === '\\') {
+      result += c;
+      escapeNext = true;
+      continue;
+    }
+    if (c === '"') {
+      inString = !inString;
+      result += c;
+      continue;
+    }
+    if (inString) {
+      if (c === '\n') { result += '\\n'; continue; }
+      if (c === '\r') { result += '\\r'; continue; }
+      if (c === '\t') { result += '\\t'; continue; }
+    }
+    result += c;
+  }
+  return result;
+}
+
+function removeIncompleteArrayElement(s) {
+  // If JSON breaks mid-array, try to truncate at the last well-formed comma and close brackets
+  // Find the position where the parser typically breaks
+  let depth = 0; let lastSafeIdx = -1; let inString = false; let escapeNext = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escapeNext) { escapeNext = false; continue; }
+    if (c === '\\') { escapeNext = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '{' || c === '[') depth++;
+    if (c === '}' || c === ']') depth--;
+    // Mark a safe truncation point: just after a closing brace/bracket at appropriate depth
+    if ((c === '}' || c === ']') && depth >= 1) lastSafeIdx = i;
+  }
+  if (lastSafeIdx === -1) throw new Error('repair impossible');
+  let head = s.substring(0, lastSafeIdx + 1);
+  // Close remaining open brackets
+  let openBraces = 0; let openBrackets = 0;
+  inString = false; escapeNext = false;
+  for (let i = 0; i < head.length; i++) {
+    const c = head[i];
+    if (escapeNext) { escapeNext = false; continue; }
+    if (c === '\\') { escapeNext = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '{') openBraces++;
+    if (c === '}') openBraces--;
+    if (c === '[') openBrackets++;
+    if (c === ']') openBrackets--;
+  }
+  while (openBrackets > 0) { head += ']'; openBrackets--; }
+  while (openBraces > 0) { head += '}'; openBraces--; }
+  return head;
+}
+
+function showError(msg) {
+  const el = document.getElementById('error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function updateLoading(title, sub, current, total) {
+  document.getElementById('loadingTitle').innerHTML = title + '<span class="loading-dots"></span>';
+  document.getElementById('loadingSub').textContent = sub;
+  const fill = document.getElementById('loadingFill');
+  const txt = document.getElementById('loadingProgressText');
+  fill.style.width = (total > 0 ? (current/total)*100 : 0) + '%';
+  txt.textContent = `${current} / ${total}`;
+}
+
+// ===== STEP 1 → STEP 2: Generate 14 candidates =====
+async function generateMenu() {
+  const startDateStr = document.getElementById('startDate').value;
+  const people = parseInt(document.getElementById('people').value);
+  const budget = parseInt(document.getElementById('budget').value);
+  const keywords = document.getElementById('keywords').value.trim();
+  const preferences = document.getElementById('preferences').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+
+  if (!startDateStr) { showError('開始日を入力してください。'); return; }
+  if (!keywords) { showError('キーワードを少なくとも1つ入力してください。'); return; }
+  if (!people || people < 1) { showError('人数を正しく入力してください。'); return; }
+
+  weekStartDate = new Date(startDateStr + 'T00:00:00');
+
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('candidatesSection').style.display = 'none';
+  document.getElementById('confirmedSection').style.display = 'none';
+  document.getElementById('shoppingSection').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  const month = weekStartDate.getMonth() + 1;
+  const yakuzen = YAKUZEN_DATA[month];
+  const recentDishes = getRecentMainDishes();
+
+  // 1週間の各日の行事を判定
+  const eventsThisWeek = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const ev = getEventForDate(d);
+    if (ev) eventsThisWeek.push(`${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]}): ${ev}`);
+  }
+
+  candidates = [];
+  let mealNum = 1;
+  let usedMainIngredients = []; // 使用済みの主要食材（魚種・肉種・主要野菜）
+
+  try {
+    // 7回のAPI呼び出しで2食ずつ = 計14食
+    for (let i = 0; i < 7; i++) {
+      updateLoading('14食の献立を考案中', `${i*2+1}〜${i*2+2}食目を作成中…`, i*2, 14);
+      const noodleHint = (i === 3) ? '（このペアの昼食は麺類または丼物にしてください。週1回の麺の日。麺の場合は「麺＋副菜2」または「麺＋副菜＋デザート」の構成）' : '';
+
+      const result = await generatePairOfMenus({
+        people, budget, keywords, preferences, notes,
+        month, yakuzen, eventsThisWeek, recentDishes,
+        pairIndex: i, mealStartNum: mealNum,
+        noodleHint,
+        usedMainIngredients: [...usedMainIngredients]
+      });
+      candidates.push(...result);
+
+      // 使用された主要食材を蓄積（主菜・副菜の食材から抽出）
+      result.forEach(menu => {
+        if (Array.isArray(menu.ingredients)) {
+          menu.ingredients.forEach(ing => {
+            const name = (ing.name || '').trim();
+            if (name && isMainIngredient(name) && !usedMainIngredients.includes(name)) {
+              usedMainIngredients.push(name);
+            }
+          });
+        }
+      });
+
+      mealNum += 2;
+      updateLoading('14食の献立を考案中', `${(i+1)*2}食目までできました`, (i+1)*2, 14);
+      if (i < 6) {
+        // 各ペア生成の間に8秒待機（レート制限回避）
+        updateLoading('14食の献立を考案中', `次の献立まで少々お待ちください…`, (i+1)*2, 14);
+        await sleep(8000);
+      }
+    }
+
+    initAssignments();
+    displayCandidates();
+
+  } catch (err) {
+    console.error('Generation error:', err);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('formSection').style.display = 'block';
+    let detailMsg = '';
+    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('fetch'))) {
+      detailMsg = `\n\n【通信エラーの可能性】
+・インターネット接続を確認してください
+・社内ネットワークの場合、ファイアウォールがAPIをブロックしている可能性があります
+・しばらく待ってからもう一度お試しください
+・繰り返し発生する場合は、APIキーの設定を確認してください`;
+    }
+    showError('生成中にエラーが発生しました。\n' + err.message + detailMsg);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+
+async function generatePairOfMenus(opts, attempt = 0) {
+  const MAX_ATTEMPTS = 3;
+  const {people, budget, keywords, preferences, notes, month, yakuzen, eventsThisWeek, recentDishes, pairIndex, mealStartNum, noodleHint, usedMainIngredients} = opts;
+  const recentList = recentDishes.length > 0
+    ? `\n【過去3ヶ月で採用済みの主菜（重複させない）】\n${recentDishes.slice(0, 100).join('、')}`
+    : '';
+  const eventsText = eventsThisWeek.length > 0
+    ? `\n【1週間内の行事】\n${eventsThisWeek.join('\n')}`
+    : '';
+  const usedList = (usedMainIngredients && usedMainIngredients.length > 0)
+    ? `\n【今週、すでに他の食事で使用された主要食材（同じ食材を主菜・副菜の主役として使わない。1週間の中で食材が重複しないようにする）】\n${usedMainIngredients.join('、')}\n上記の食材は今回の2食では絶対にメイン食材として使わないでください。例えば「サバ」が含まれていれば今回の主菜にサバを使ってはいけません。「新玉ねぎ」が含まれていれば、副菜の主役として新玉ねぎを使ってはいけません（少量の薬味使用は可）。`
+    : '';
+
+  const prompt = `あなたは認知症対応型グループホームの経験豊富な料理長兼管理栄養士です。社会福祉法人天祐会・七福神グループの「その人らしい生命の尊重」の理念のもと、入居者が安心して楽しめる家庭料理を提供しています。
+
+以下の条件で、献立候補を【2食分】作成してください（${pairIndex+1}/7組目、これは1週間14食のうち${mealStartNum}〜${mealStartNum+1}食目）。
+
+【基本条件】
+・対象月: ${month}月（${yakuzen.season}）
+・人数: ${people}名分
+・予算: 1食1人${budget}円前後
+・キーワード: ${keywords}
+${preferences ? '・利用者様の好み: ' + preferences : ''}
+${notes ? '・配慮事項（最優先）: ' + notes : ''}
+${eventsText}
+
+【献立構成】※必ず守る
+・主食1品（白ご飯/玄米/チャーハン/おにぎり/炊き込みご飯など。麺類の時は麺が主食）
+・主菜1品（肉または魚、1人60g。炒め物なら具材合計80〜100g/人）
+・副菜2品（各1人40〜50g）
+・デザート OR 汁物（どちらか1品。両方ではない）
+合計：500〜600kcal、たんぱく質60g目安
+
+【遵守すべきルール】
+・2食の主菜のメイン材料は重複させない（昼が肉なら夕は魚など）
+・餅・団子など嚥下が難しいものは禁止
+・家庭の調理器具（フライパン・鍋）で作れる料理にする
+・どちらか1食には必ず「ゆる薬膳」要素を入れる（生薬を使う場合は料理名に「薬膳」を入れる。例：「クコ入り薬膳粥」）
+・季節食材を活用する${noodleHint}
+${recentList}
+${usedList}
+
+【${month}月の薬膳ガイド】
+${yakuzen.theme}。${yakuzen.point}
+推奨食材: ${yakuzen.foods}
+活用できる生薬: ${yakuzen.herbs}
+
+【鹿児島郷土料理（キーワードに「郷土料理」がある場合に活用）】
+${KAGOSHIMA_FOODS}
+
+【出力形式 - 重要なJSONルール】
+- 必ずJSON形式のみで出力。マークダウン記法・説明文・前置き不要
+- 文字列内では絶対に生の改行を使わず、必ず \\n と書く（例: "1. 切る\\n2. 炒める"）
+- 文字列内に " を入れる場合は \\" でエスケープ
+- カンマの後に必ずスペースか改行（JSON構文として）
+- 配列・オブジェクトの最後の要素の後にカンマを置かない
+
+以下のJSON形式：
+{
+  "menus": [
+    {
+      "name": "主菜名（簡潔に）",
+      "category": "肉",
+      "items": [
+        {"type": "主食", "name": "白ご飯"},
+        {"type": "主菜", "name": "○○の○○"},
+        {"type": "副菜1", "name": "○○"},
+        {"type": "副菜2", "name": "○○"},
+        {"type": "デザート", "name": "○○"}
+      ],
+      "ingredients": [
+        {"name": "食材名", "amount": "数量"}
+      ],
+      "recipe": "1. ○○する（醤油大さじ2、みりん大さじ1）\\n2. ○○する\\n3. ○○する",
+      "yakuzen": "薬膳要素の説明 または なし",
+      "calories": 550,
+      "estimatedCost": ${people * budget}
+    },
+    {
+      "name": "2食目の主菜名",
+      "category": "魚",
+      "items": [...],
+      "ingredients": [...],
+      "recipe": "...",
+      "yakuzen": "...",
+      "calories": 550,
+      "estimatedCost": ${people * budget}
+    }
+  ]
+}
+
+categoryは「肉」「魚」「麺」「丼」「その他」のいずれか。
+itemsは「デザート」または「汁物」のどちらか1つを含める（両方ではない）。
+
+【レシピの書き方 - 重要】
+recipeフィールドには、献立に含まれる全ての料理（主食・主菜・副菜2品・デザートまたは汁物）の作り方を、調味料の分量まで具体的に記載してください。例：
+
+"recipe": "【主菜：鶏の照り焼き】\\n1. 鶏もも肉(540g)を一口大に切り、塩(小さじ1/2)・こしょうをふる\\n2. フライパンに油(大さじ1)を熱し、鶏肉を皮目から焼く\\n3. 醤油(大さじ4)・みりん(大さじ4)・砂糖(大さじ2)・酒(大さじ2)を加えて煮絡める\\n\\n【副菜1：ほうれん草の胡麻和え】\\n1. ほうれん草(2束)を茹でて水気を絞り、3cm長さに切る\\n2. すりごま(大さじ3)・砂糖(大さじ1)・醤油(大さじ1)で和える\\n\\n【副菜2：きんぴらごぼう】\\n1. ごぼう(1本)・人参(1/2本)を千切りにする\\n2. ごま油(大さじ1)で炒め、醤油(大さじ2)・みりん(大さじ2)・砂糖(大さじ1)で味付け\\n\\n【汁物：豆腐とわかめの味噌汁】\\n1. だし汁(900ml)に豆腐(1丁)を切って入れる\\n2. 乾燥わかめ(大さじ2)を加え、味噌(大さじ4)を溶く"
+
+このように、必ず：
+- すべての料理（主菜・副菜2つ・デザートor汁物）の作り方を含める
+- 調味料は「大さじ○」「小さじ○」「○ml」「○g」など具体的な分量
+- 食材の量も括弧で明記
+- 各料理の見出しは【○○：料理名】の形式
+- 改行は必ず \\n（バックスラッシュ＋n）`;
+
+  try {
+    const text = await callClaudeAPI(prompt, 6000);
+    const data = parseJSON(text);
+
+    if (!data.menus || !Array.isArray(data.menus) || data.menus.length < 2) {
+      throw new Error('献立データの形式が想定と異なります');
+    }
+
+    return data.menus.slice(0, 2).map((m, idx) => ({
+      id: mealStartNum + idx,
+      ...m
+    }));
+  } catch (err) {
+    // JSONパースエラーや形式エラーの場合、再試行
+    if (attempt < MAX_ATTEMPTS - 1) {
+      console.warn(`献立${mealStartNum}〜${mealStartNum+1}食目の生成失敗、リトライします (${attempt+1}/${MAX_ATTEMPTS}): ${err.message}`);
+      await sleep(10000);  // リトライ前に10秒待機（レート制限回避）
+      return generatePairOfMenus(opts, attempt + 1);
+    }
+    throw new Error(`献立${mealStartNum}〜${mealStartNum+1}食目の生成に${MAX_ATTEMPTS}回失敗しました: ${err.message}`);
+  }
+}
+
+// ===== Assignments =====
+function initAssignments() {
+  assignments = {};
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    assignments[`${key}-lunch`] = null;
+    assignments[`${key}-dinner`] = null;
+  }
+}
+
+function getAssignedSlot(candidateId) {
+  for (const [slot, id] of Object.entries(assignments)) {
+    if (id === candidateId) return slot;
+  }
+  return null;
+}
+
+function assignCandidate(candidateId, slot) {
+  // すでにこの候補が他のスロットに割り当てられているなら解除
+  const prev = getAssignedSlot(candidateId);
+  if (prev) assignments[prev] = null;
+  // このスロットにすでに別の候補が割り当てられていたら解除
+  if (slot && assignments[slot] != null) {
+    // セレクトボックスを更新するために、その候補のセレクトをリセット
+    const prevId = assignments[slot];
+    const sel = document.querySelector(`#assign-${prevId}`);
+    if (sel) sel.value = '';
+  }
+  if (slot) assignments[slot] = candidateId;
+  refreshScheduleUI();
+  refreshCandidatesUI();
+}
+
+function clearAssignments() {
+  initAssignments();
+  document.querySelectorAll('select[id^="assign-"]').forEach(s => { s.value = ''; });
+  refreshScheduleUI();
+  refreshCandidatesUI();
+}
+
+function autoAssign() {
+  // ランダムではなく、肉/魚バランスを考慮して自動配置
+  clearAssignments();
+  const lunches = [];
+  const dinners = [];
+  // 肉と魚を交互に
+  const niku = candidates.filter(c => c.category === '肉');
+  const sakana = candidates.filter(c => c.category === '魚');
+  const noodle = candidates.filter(c => c.category === '麺' || c.category === '丼');
+  const other = candidates.filter(c => !['肉','魚','麺','丼'].includes(c.category));
+
+  // 1週間の昼夕配置：昼=肉、夕=魚 / 昼=魚、夕=肉 を交互に
+  const sequence = [];
+  let nikuIdx = 0, sakanaIdx = 0, noodleIdx = 0, otherIdx = 0;
+  for (let day = 0; day < 7; day++) {
+    let lunchCat, dinnerCat;
+    if (day === 3 && noodle.length > 0) {
+      // 4日目の昼に麺
+      lunchCat = 'noodle';
+      dinnerCat = (day % 2 === 0) ? 'sakana' : 'niku';
+    } else {
+      lunchCat = (day % 2 === 0) ? 'niku' : 'sakana';
+      dinnerCat = (day % 2 === 0) ? 'sakana' : 'niku';
+    }
+    sequence.push({ lunch: lunchCat, dinner: dinnerCat });
+  }
+
+  function pickFrom(category) {
+    if (category === 'niku' && nikuIdx < niku.length) return niku[nikuIdx++];
+    if (category === 'sakana' && sakanaIdx < sakana.length) return sakana[sakanaIdx++];
+    if (category === 'noodle' && noodleIdx < noodle.length) return noodle[noodleIdx++];
+    if (otherIdx < other.length) return other[otherIdx++];
+    if (nikuIdx < niku.length) return niku[nikuIdx++];
+    if (sakanaIdx < sakana.length) return sakana[sakanaIdx++];
+    return null;
+  }
+
+  for (let day = 0; day < 7; day++) {
+    const d = addDays(weekStartDate, day);
+    const key = formatDateInput(d);
+    const lunchCand = pickFrom(sequence[day].lunch);
+    const dinnerCand = pickFrom(sequence[day].dinner);
+    if (lunchCand) assignments[`${key}-lunch`] = lunchCand.id;
+    if (dinnerCand) assignments[`${key}-dinner`] = dinnerCand.id;
+  }
+
+  // セレクトボックスを更新
+  document.querySelectorAll('select[id^="assign-"]').forEach(s => {
+    const cid = parseInt(s.id.replace('assign-', ''));
+    const slot = getAssignedSlot(cid);
+    s.value = slot || '';
+  });
+  refreshScheduleUI();
+  refreshCandidatesUI();
+}
+
+// ===== STEP 2: Display =====
+function displayCandidates() {
+  document.getElementById('loading').style.display = 'none';
+  buildScheduleGrid();
+  buildCandidatesList();
+  document.getElementById('candidatesSection').style.display = 'block';
+  setTimeout(() => window.scrollTo({top:0, behavior:'smooth'}), 100);
+}
+
+// ===== Manual Menu Functions =====
+function openManualMenuForm() {
+  // フォームをクリアして表示
+  document.getElementById('manualName').value = '';
+  document.getElementById('manualCategory').value = 'その他';
+  ['manualItem0','manualItem1','manualItem2','manualItem3','manualItem4'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('manualItem4Type').value = 'デザート';
+  document.getElementById('manualRecipe').value = '';
+  document.getElementById('manualIngredientsList').innerHTML = '';
+  manualIngredientCount = 0;
+  // 材料行を3つ用意
+  addManualIngredient();
+  addManualIngredient();
+  addManualIngredient();
+  document.getElementById('manualMenuForm').style.display = 'block';
+  // フォームまでスクロール
+  setTimeout(() => {
+    document.getElementById('manualMenuForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+function cancelManualMenuForm() {
+  document.getElementById('manualMenuForm').style.display = 'none';
+}
+
+function addManualIngredient() {
+  const idx = manualIngredientCount++;
+  const list = document.getElementById('manualIngredientsList');
+  const row = document.createElement('div');
+  row.className = 'manual-ingredient-row';
+  row.innerHTML = `
+    <input type="text" id="manualIngName${idx}" placeholder="食材名（例：玉ねぎ）">
+    <input type="text" id="manualIngAmount${idx}" placeholder="数量（例：3個、500g）">
+    <button class="manual-ingredient-remove" onclick="this.parentElement.remove()">削除</button>
+  `;
+  list.appendChild(row);
+}
+
+function saveManualMenu() {
+  const name = document.getElementById('manualName').value.trim();
+  if (!name) {
+    alert('献立名を入力してください。');
+    document.getElementById('manualName').focus();
+    return;
+  }
+  const category = document.getElementById('manualCategory').value;
+
+  // 5品を取得
+  const itemTypes = ['主食','主菜','副菜1','副菜2', document.getElementById('manualItem4Type').value];
+  const items = [];
+  for (let i = 0; i < 5; i++) {
+    const val = document.getElementById(`manualItem${i}`).value.trim();
+    if (val) items.push({ type: itemTypes[i], name: val });
+  }
+
+  // 材料を取得（フォームに残っている行から）
+  const ingredients = [];
+  document.querySelectorAll('#manualIngredientsList .manual-ingredient-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const ingName = (inputs[0].value || '').trim();
+    const ingAmount = (inputs[1].value || '').trim();
+    if (ingName) ingredients.push({ name: ingName, amount: ingAmount });
+  });
+
+  const recipe = document.getElementById('manualRecipe').value.trim();
+
+  // 手動献立として保存
+  const menu = {
+    id: nextManualId++,
+    isManual: true,
+    name: name,
+    category: category,
+    items: items,
+    ingredients: ingredients,
+    recipe: recipe,
+    yakuzen: '',
+    calories: null
+  };
+  manualMenus.push(menu);
+
+  // フォームを閉じてリストを更新
+  document.getElementById('manualMenuForm').style.display = 'none';
+  buildManualMenusList();
+}
+
+function deleteManualMenu(id) {
+  if (!confirm('この手動献立を削除しますか？\n（割り当てもクリアされます）')) return;
+  // 割り当てから削除
+  const slot = getAssignedSlot(id);
+  if (slot) assignments[slot] = null;
+  // 配列から削除
+  manualMenus = manualMenus.filter(m => m.id !== id);
+  buildManualMenusList();
+  refreshScheduleUI();
+}
+
+function buildScheduleGrid() {
+  const grid = document.getElementById('scheduleGrid');
+  grid.innerHTML = '';
+  // ヘッダ行
+  const corner = document.createElement('div');
+  corner.className = 'schedule-cell header-row';
+  corner.textContent = '';
+  grid.appendChild(corner);
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const cell = document.createElement('div');
+    cell.className = 'schedule-cell header-row';
+    cell.textContent = formatDateShort(d);
+    grid.appendChild(cell);
+  }
+  // 昼行
+  const lunchHead = document.createElement('div');
+  lunchHead.className = 'schedule-cell label-lunch';
+  lunchHead.textContent = '昼';
+  grid.appendChild(lunchHead);
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = `${formatDateInput(d)}-lunch`;
+    grid.appendChild(makeScheduleCell(key));
+  }
+  // 夕行
+  const dinnerHead = document.createElement('div');
+  dinnerHead.className = 'schedule-cell label-dinner';
+  dinnerHead.textContent = '夕';
+  grid.appendChild(dinnerHead);
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = `${formatDateInput(d)}-dinner`;
+    grid.appendChild(makeScheduleCell(key));
+  }
+}
+
+function makeScheduleCell(slotKey) {
+  const cell = document.createElement('div');
+  const cid = assignments[slotKey];
+  if (cid != null) {
+    const cand = getMenuById(cid);
+    cell.className = 'schedule-cell assigned';
+    cell.textContent = `#${cid} ${cand ? cand.name.substring(0, 12) : ''}`;
+    cell.title = cand ? cand.name : '';
+  } else {
+    cell.className = 'schedule-cell empty';
+    cell.textContent = '—';
+  }
+  return cell;
+}
+
+function refreshScheduleUI() {
+  buildScheduleGrid();
+}
+
+function buildCandidatesList() {
+  const list = document.getElementById('candidatesList');
+  list.innerHTML = '';
+  candidates.forEach(c => list.appendChild(makeCandidateCard(c)));
+  buildManualMenusList();
+}
+
+function buildManualMenusList() {
+  const list = document.getElementById('manualMenusList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (manualMenus.length === 0) {
+    list.innerHTML = '<p style="color: var(--ink-soft); font-style: italic; padding: 12px; font-size: 0.88rem;">手動メニューはまだ追加されていません。下のボタンから追加できます。</p>';
+    return;
+  }
+  manualMenus.forEach(m => list.appendChild(makeCandidateCard(m)));
+}
+
+function refreshCandidatesUI() {
+  getAllMenus().forEach(c => {
+    const el = document.getElementById(`candidate-${c.id}`);
+    if (el) {
+      const slot = getAssignedSlot(c.id);
+      el.classList.toggle('assigned', slot != null);
+    }
+  });
+}
+
+function makeCandidateCard(c) {
+  const isManual = c.isManual === true;
+  const wrap = document.createElement('div');
+  wrap.id = `candidate-${c.id}`;
+  wrap.className = 'candidate-card' + (isManual ? ' manual' : '') + (getAssignedSlot(c.id) ? ' assigned' : '');
+
+  const slotOptions = ['<option value="">— 未割当 —</option>'];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const dateLabel = formatDateShort(d);
+    const evt = getEventForDate(d);
+    const evtMark = evt ? ` ★${evt.split('（')[0]}` : '';
+    const key = formatDateInput(d);
+    slotOptions.push(`<option value="${key}-lunch">${dateLabel} 昼${evtMark}</option>`);
+    slotOptions.push(`<option value="${key}-dinner">${dateLabel} 夕${evtMark}</option>`);
+  }
+  const currentSlot = getAssignedSlot(c.id) || '';
+
+  const itemsHtml = (c.items || []).filter(it => it && (it.name || '').trim().length > 0).map(it =>
+    `<li class="candidate-item"><span class="candidate-item-type">${escapeHtml(it.type)}</span><span class="candidate-item-name">${escapeHtml(it.name)}</span></li>`
+  ).join('');
+
+  const ingHtml = (c.ingredients || []).map(ing =>
+    `<tr><td>${escapeHtml(ing.name)}</td><td>${escapeHtml(ing.amount)}</td></tr>`
+  ).join('');
+
+  const recipeText = (c.recipe || '').replace(/\\n/g, '\n');
+  const hasYakuzen = c.yakuzen && c.yakuzen !== 'なし' && c.yakuzen.trim().length > 0;
+  const tagYakuzen = hasYakuzen ? '<span class="candidate-tag yakuzen">薬膳</span>' : '';
+  const tagCategory = c.category ? `<span class="candidate-tag">${escapeHtml(c.category)}</span>` : '';
+  const tagManual = isManual ? '<span class="manual-tag">✏️ 手動</span>' : '';
+
+  // 表示用の番号：手動は M1, M2..., 自動は #1〜#14
+  const displayNum = isManual ? `M${c.id - 1000}` : `#${c.id}`;
+
+  const hasIngredients = (c.ingredients || []).length > 0;
+  const hasRecipe = recipeText.trim().length > 0;
+  const showDetailButton = hasIngredients || hasRecipe;
+
+  const detailHtml = showDetailButton ? `
+    <div id="recipe-${c.id}" class="recipe-detail">
+      ${hasIngredients ? `<div class="recipe-section-title">材料</div>
+      <table class="ingredients-table"><tbody>${ingHtml}</tbody></table>` : ''}
+      ${hasRecipe ? `<div class="recipe-section-title">作り方${isManual ? '' : '（調味料の量含む）'}</div>
+      <div class="recipe-text">${escapeHtml(recipeText)}</div>` : ''}
+    </div>
+  ` : '';
+
+  const deleteBtn = isManual ? `<button class="candidate-delete-btn" onclick="deleteManualMenu(${c.id})">🗑️ 削除</button>` : '';
+  const detailBtn = showDetailButton ? `<button class="recipe-toggle" onclick="toggleRecipe(${c.id}, this)">材料${hasRecipe ? '・レシピ' : ''} ▼</button>` : '';
+
+  wrap.innerHTML = `
+    <div class="candidate-card-main">
+      <div class="candidate-header">
+        <span class="candidate-num">${displayNum}</span>
+        <span style="font-family: 'Noto Serif JP', serif; font-size: 0.95rem; font-weight: 500;">${escapeHtml(c.name)}</span>
+        ${tagCategory}${tagYakuzen}${tagManual}
+        ${c.calories ? `<span class="candidate-info">約${c.calories}kcal</span>` : ''}
+      </div>
+      ${itemsHtml ? `<ul class="candidate-items">${itemsHtml}</ul>` : ''}
+      ${hasYakuzen ? `<div class="candidate-yakuzen">🌿 ${escapeHtml(c.yakuzen)}</div>` : ''}
+    </div>
+    <div class="candidate-actions no-print">
+      <select id="assign-${c.id}" onchange="onAssignChange(${c.id}, this.value)">
+        ${slotOptions.join('')}
+      </select>
+      ${detailBtn}
+      ${deleteBtn}
+    </div>
+    ${detailHtml}
+  `;
+  // 初期値設定
+  setTimeout(() => {
+    const sel = wrap.querySelector(`#assign-${c.id}`);
+    if (sel) sel.value = currentSlot;
+  }, 0);
+  return wrap;
+}
+
+function onAssignChange(candidateId, slotKey) {
+  assignCandidate(candidateId, slotKey || null);
+}
+
+function toggleRecipe(id, btn) {
+  const el = document.getElementById(`recipe-${id}`);
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? '材料・レシピ ▲' : '材料・レシピ ▼';
+}
+
+// ===== STEP 2 → STEP 3: Confirm =====
+function confirmSchedule() {
+  try {
+    // 採用された献立があるかチェック
+    const assigned = Object.entries(assignments).filter(([k, v]) => v != null);
+    if (assigned.length === 0) {
+      showError('献立が1食も割り当てられていません。少なくとも1食は割り当ててください。');
+      window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+    // 主菜重複チェック（昼夕で同じ材料）
+    const warnings = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(weekStartDate, i);
+      const key = formatDateInput(d);
+      const lunchId = assignments[`${key}-lunch`];
+      const dinnerId = assignments[`${key}-dinner`];
+      if (lunchId != null && dinnerId != null) {
+        const lunch = getMenuById(lunchId);
+        const dinner = getMenuById(dinnerId);
+        if (lunch && dinner && lunch.category === dinner.category && (lunch.category === '肉' || lunch.category === '魚')) {
+          warnings.push(`${formatDateShort(d)} 昼夕とも${lunch.category}料理`);
+        }
+      }
+    }
+    if (warnings.length > 0) {
+      if (!confirm(`以下の点が気になります：\n\n${warnings.join('\n')}\n\nこのまま確定しますか？`)) return;
+    }
+
+    buildA4Sheet();
+    document.getElementById('candidatesSection').style.display = 'none';
+    document.getElementById('confirmedSection').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+    // 採用履歴に保存
+    saveAssignmentsToHistory();
+    window.scrollTo({top:0, behavior:'smooth'});
+  } catch (err) {
+    console.error('確定処理エラー:', err);
+    showError('献立の確定処理でエラーが発生しました：\n' + err.message + '\n\nブラウザのコンソール（F12キー）で詳細をご確認いただけます。');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+
+function saveAssignmentsToHistory() {
+  const items = [];
+  for (const [slot, cid] of Object.entries(assignments)) {
+    if (cid != null) {
+      const cand = getMenuById(cid);
+      if (cand) {
+        const [date, meal] = [slot.substring(0, 10), slot.substring(11)];
+        items.push({ date, meal, name: cand.name });
+      }
+    }
+  }
+  if (items.length > 0) saveToHistory(items);
+}
+
+function buildA4Sheet() {
+  const sheet = document.getElementById('a4Sheet');
+  const start = weekStartDate;
+  const end = addDays(weekStartDate, 6);
+  document.getElementById('confirmedTitle').textContent =
+    `${formatDateLabel(start)} 〜 ${formatDateLabel(end)} の献立`;
+
+  let html = '<table class="a4-table"><thead><tr>';
+  html += '<th class="day-header">日付</th>';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const dows = ['日','月','火','水','木','金','土'];
+    const dow = dows[d.getDay()];
+    const evt = getEventForDate(d);
+    html += `<th>${d.getMonth()+1}/${d.getDate()}<br>(${dow})${evt ? `<br><span style="font-size:0.7rem;color:var(--gold);">★${evt.split('（')[0]}</span>` : ''}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  // 昼の行
+  html += '<tr><th class="lunch-header">昼食</th>';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    html += renderA4Cell(d, 'lunch');
+  }
+  html += '</tr>';
+
+  // 夕の行
+  html += '<tr><th class="dinner-header">夕食</th>';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    html += renderA4Cell(d, 'dinner');
+  }
+  html += '</tr></tbody></table>';
+
+  sheet.innerHTML = html;
+
+  // クックデリ・空白セルをダブルクリックで編集可能にする
+  sheet.querySelectorAll('.a4-cell.cookdeli, .a4-cell.empty').forEach(cell => {
+    cell.addEventListener('dblclick', () => makeEditable(cell));
+  });
+}
+
+function renderA4Cell(date, meal) {
+  const key = `${formatDateInput(date)}-${meal}`;
+  const cid = assignments[key];
+  const dow = date.getDay();
+  const isWeekday = dow >= 1 && dow <= 5;
+
+  if (cid != null) {
+    const cand = getMenuById(cid);
+    if (cand) {
+      const items = Array.isArray(cand.items) ? cand.items : [];
+      const ingredients = Array.isArray(cand.ingredients) ? cand.ingredients : [];
+      const itemsList = items.map(it => `${escapeHtml(it.type || '')}: ${escapeHtml(it.name || '')}`).join('<br>');
+      const ingList = ingredients.slice(0, 8).map(i => `${escapeHtml(i.name || '')}`).join('、');
+      const tag = cand.yakuzen && cand.yakuzen !== 'なし' ? '🌿' : '';
+      return `<td class="a4-cell">
+        <div class="a4-cell-name">${tag} ${escapeHtml(cand.name || '')}</div>
+        <div class="a4-cell-items">${itemsList}</div>
+        <div class="a4-cell-ingredients">材料: ${ingList}${ingredients.length > 8 ? '…他' : ''}</div>
+      </td>`;
+    }
+  }
+  // 未割当
+  if (isWeekday) {
+    return `<td class="a4-cell cookdeli" data-key="${key}"><div class="cookdeli-text">クックデリ</div></td>`;
+  } else {
+    return `<td class="a4-cell empty" data-key="${key}"><div class="empty-text">— 空白 —<br><span style="font-size:0.65rem;">ダブルクリックで編集</span></div></td>`;
+  }
+}
+
+function makeEditable(cell) {
+  const currentText = cell.classList.contains('cookdeli') ? 'クックデリ' :
+                      (cell.querySelector('.empty-text')?.textContent || '').replace('— 空白 —', '').replace('ダブルクリックで編集', '').trim();
+  const ta = document.createElement('textarea');
+  ta.className = 'a4-cell-edit';
+  ta.value = currentText.replace('— 空白 —', '').trim();
+  ta.placeholder = 'メニューを入力';
+  cell.innerHTML = '';
+  cell.appendChild(ta);
+  ta.focus();
+  ta.addEventListener('blur', () => {
+    const v = ta.value.trim();
+    if (v) {
+      cell.classList.remove('empty');
+      cell.classList.remove('cookdeli');
+      cell.innerHTML = `<div class="a4-cell-name">${escapeHtml(v)}</div>`;
+    } else {
+      // 空のまま → 元に戻す
+      const key = cell.getAttribute('data-key');
+      if (key) {
+        const dow = new Date(key.substring(0,10) + 'T00:00:00').getDay();
+        if (dow >= 1 && dow <= 5) {
+          cell.classList.add('cookdeli');
+          cell.classList.remove('empty');
+          cell.innerHTML = '<div class="cookdeli-text">クックデリ</div>';
+        } else {
+          cell.classList.add('empty');
+          cell.classList.remove('cookdeli');
+          cell.innerHTML = '<div class="empty-text">— 空白 —<br><span style="font-size:0.65rem;">ダブルクリックで編集</span></div>';
+        }
+      }
+    }
+    // 再度ダブルクリックリスナーを付与
+    cell.addEventListener('dblclick', () => makeEditable(cell));
+  });
+}
+
+// ===== STEP 3 → STEP 4: Shopping list =====
+let shoppingChecked = {}; // { "yyyy-mm-dd-lunch": true, ... }
+
+function goToShoppingList() {
+  document.getElementById('confirmedSection').style.display = 'none';
+  document.getElementById('shoppingSection').style.display = 'block';
+  // 初期状態：採用済みすべてにチェックを入れる
+  shoppingChecked = {};
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    if (assignments[`${key}-lunch`] != null) shoppingChecked[`${key}-lunch`] = true;
+    if (assignments[`${key}-dinner`] != null) shoppingChecked[`${key}-dinner`] = true;
+  }
+  buildShoppingCheckboxes();
+  updateShoppingList();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function buildShoppingCheckboxes() {
+  const container = document.getElementById('shoppingMealCheckboxes');
+  let html = '<div class="shopping-meal-checkboxes-title">📋 集計したい食事にチェックを入れてください</div>';
+  let hasAny = false;
+
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    ['lunch', 'dinner'].forEach(meal => {
+      const cid = assignments[`${key}-${meal}`];
+      if (cid == null) return;
+      const c = getMenuById(cid);
+      if (!c) return;
+      hasAny = true;
+      const slotKey = `${key}-${meal}`;
+      const checked = shoppingChecked[slotKey] !== false ? 'checked' : '';
+      const mealLabel = meal === 'lunch' ? '昼' : '夕';
+      const mealClass = meal;
+      html += `<div class="shopping-meal-row">
+        <label>
+          <input type="checkbox" data-slot="${slotKey}" ${checked} onchange="onShoppingCheckChange(this)">
+          <span class="shopping-meal-date">${formatDateShort(d)}</span>
+          <span class="shopping-meal-type ${mealClass}">${mealLabel}</span>
+          <span class="shopping-meal-name">${escapeHtml(c.name)}</span>
+        </label>
+      </div>`;
+    });
+  }
+
+  if (!hasAny) {
+    html += '<p style="color: var(--ink-soft); font-style: italic; padding: 8px;">採用された食事がありません。</p>';
+  }
+
+  container.innerHTML = html;
+}
+
+function onShoppingCheckChange(checkbox) {
+  const slot = checkbox.getAttribute('data-slot');
+  shoppingChecked[slot] = checkbox.checked;
+  updateShoppingList();
+}
+
+function toggleAllShoppingChecks(check) {
+  document.querySelectorAll('#shoppingMealCheckboxes input[type="checkbox"]').forEach(cb => {
+    cb.checked = check;
+    const slot = cb.getAttribute('data-slot');
+    shoppingChecked[slot] = check;
+  });
+  updateShoppingList();
+}
+
+function updateShoppingList() {
+  // チェックされた食事のみを集計
+  const target = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    ['lunch', 'dinner'].forEach(meal => {
+      const slotKey = `${key}-${meal}`;
+      const cid = assignments[slotKey];
+      if (cid == null) return;
+      if (shoppingChecked[slotKey] === false) return;
+      const c = getMenuById(cid);
+      if (c) target.push({ date: d, meal, candidate: c });
+    });
+  }
+
+  const list = document.getElementById('shoppingList');
+
+  if (target.length === 0) {
+    list.innerHTML = '<p style="color: var(--ink-soft); font-style: italic; padding: 16px; text-align: center;">チェックされた食事がありません。集計対象を選んでください。</p>';
+    return;
+  }
+
+  // 食材を集計
+  const ingredients = {};
+  target.forEach(t => {
+    (t.candidate.ingredients || []).forEach(ing => {
+      const name = (ing.name || '').trim();
+      if (!name) return;
+      if (!ingredients[name]) ingredients[name] = [];
+      ingredients[name].push(ing.amount || '');
+    });
+  });
+
+  // カテゴリ分け
+  const categories = {
+    '野菜・果物': [],
+    '肉・魚': [],
+    '米・パン・麺類': [],
+    '乾物・調味料': [],
+    'その他': []
+  };
+  Object.entries(ingredients).forEach(([name, amounts]) => {
+    const item = { name, amount: amounts.filter(a => a).join(' + ') };
+    if (/米|パン|麺|うどん|そば|スパゲ|パスタ|ラーメン|餅|そうめん|ご飯/.test(name)) categories['米・パン・麺類'].push(item);
+    else if (/肉|豚|牛|鶏|ささみ|ハム|ベーコン|魚|鯖|鮭|鰤|鰹|鯛|あじ|いわし|さんま|たら|ぶり|まぐろ|ほたて|海老|エビ|蛤|あさり|しじみ|いか|たこ|貝/.test(name)) categories['肉・魚'].push(item);
+    else if (/野菜|菜|大根|人参|玉ねぎ|キャベツ|レタス|きゅうり|トマト|ピーマン|なす|かぼちゃ|じゃがいも|さつまいも|ごぼう|れんこん|ねぎ|生姜|にんにく|みょうが|しそ|セロリ|ほうれん|小松|もやし|きのこ|椎茸|しめじ|まいたけ|なめこ|エリンギ|エノキ|たけのこ|アスパラ|オクラ|豆苗|スプラウト|果|りんご|みかん|柿|梨|桃|ぶどう|いちご|バナナ|レモン|ゆず|びわ|さくらんぼ|スイカ|メロン|キウイ|パイン|アボカド|大豆|枝豆|そら豆/.test(name)) categories['野菜・果物'].push(item);
+    else if (/醤油|味噌|塩|砂糖|みりん|酒|酢|油|だし|出汁|ソース|ケチャップ|マヨ|ドレッシング|ごま|海苔|わかめ|ひじき|昆布|鰹節|乾|片栗|小麦粉|薄力|強力|パン粉|きな粉|スパイス|胡椒|唐辛子|生薬|クコ|なつめ|陳皮|はと麦|シナモン/.test(name)) categories['乾物・調味料'].push(item);
+    else if (/卵|牛乳|チーズ|バター|ヨーグルト|豆腐|油揚げ|厚揚げ|納豆|高野豆腐|こんにゃく|寒天|ゼラチン/.test(name)) categories['その他'].push(item);
+    else categories['その他'].push(item);
+  });
+
+  // HTML描画
+  let html = `<div class="shopping-summary">📊 集計対象：${target.length}食分の食材合計</div>`;
+  Object.entries(categories).forEach(([cat, items]) => {
+    if (items.length === 0) return;
+    html += `<div class="shopping-section">
+      <div class="shopping-category">${cat}</div>
+      <div class="shopping-items">
+        ${items.map(i => `<div class="shopping-item"><span class="shopping-name">${escapeHtml(i.name)}</span><span class="shopping-amount">${escapeHtml(i.amount)}</span></div>`).join('')}
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+// ===== Recipe Print =====
+function getItemEmoji(type, name) {
+  // 主食判定（中身で判定）
+  if (type === '主食') {
+    if (/麺|うどん|そば|ラーメン|スパゲ|パスタ|そうめん|ビーフン|フォー/.test(name)) return '🍜';
+    if (/おにぎり|寿司/.test(name)) return '🍙';
+    if (/カレー|丼/.test(name)) return '🍛';
+    if (/パン/.test(name)) return '🍞';
+    return '🍚';
+  }
+  if (type === '主菜') {
+    if (/鯖|鮭|鯵|鯛|鰤|ぶり|鱈|たら|いわし|さんま|まぐろ|鰹|魚|鯉|海老|エビ|ほたて|いか|たこ|貝|カレイ/.test(name)) return '🐟';
+    if (/鶏|チキン|唐揚|手羽/.test(name)) return '🍗';
+    if (/豚|ポーク|生姜焼|角煮|しゃぶ/.test(name)) return '🥓';
+    if (/牛|ステーキ|ビーフ|肉じゃが/.test(name)) return '🥩';
+    if (/卵|オムレツ/.test(name)) return '🥚';
+    if (/豆腐/.test(name)) return '🥡';
+    return '🍖';
+  }
+  if (type === '副菜1' || type === '副菜2' || type === '副菜') {
+    if (/サラダ|生野菜/.test(name)) return '🥗';
+    if (/和え|おひたし|浸し/.test(name)) return '🥬';
+    if (/煮物|含め煮|きんぴら/.test(name)) return '🍲';
+    if (/漬物|浅漬|なます|酢の物/.test(name)) return '🥒';
+    if (/きのこ/.test(name)) return '🍄';
+    return '🥕';
+  }
+  if (type === 'デザート' || type === 'デザート/汁物') {
+    if (/プリン|ゼリー|寒天/.test(name)) return '🍮';
+    if (/ヨーグルト/.test(name)) return '🥛';
+    if (/餅|まんじゅう|団子/.test(name)) return '🍡';
+    if (/ケーキ|タルト/.test(name)) return '🍰';
+    if (/果物|フルーツ|いちご|みかん|りんご|柿|ぶどう|びわ|さくらんぼ|桃|梨/.test(name)) return '🍓';
+    return '🍨';
+  }
+  if (type === '汁物') {
+    if (/味噌|みそ|豚汁/.test(name)) return '🍜';
+    if (/澄し|すまし/.test(name)) return '🥣';
+    return '🥣';
+  }
+  return '🍽️';
+}
+
+function getItemCategoryClass(type) {
+  if (type === '主食') return 'shushoku';
+  if (type === '主菜') return 'shusai';
+  if (type === '副菜1') return 'fukusai1';
+  if (type === '副菜2' || type === '副菜') return 'fukusai2';
+  if (type === 'デザート') return 'dessert';
+  if (type === '汁物') return 'shirumono';
+  return 'shusai';
+}
+
+function getMenuEmoji(category, name) {
+  if (category === '麺') return '🍜';
+  if (category === '丼') return '🍛';
+  if (category === '魚') return '🐟';
+  if (category === '肉') {
+    if (/鶏|唐揚|チキン/.test(name)) return '🍗';
+    if (/豚/.test(name)) return '🥓';
+    if (/牛/.test(name)) return '🥩';
+    return '🍖';
+  }
+  return '🍱';
+}
+
+function formatRecipeText(recipe) {
+  if (!recipe) return '';
+  // \nを実際の改行に変換し、見出し【】を強調
+  return recipe
+    .replace(/\\n/g, '\n')
+    .replace(/【([^】]+)】/g, '<strong>【$1】</strong>');
+}
+
+function printRecipes() {
+  // 採用された献立を日付・時間順に集める
+  const recipes = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStartDate, i);
+    const key = formatDateInput(d);
+    ['lunch', 'dinner'].forEach(meal => {
+      const cid = assignments[`${key}-${meal}`];
+      if (cid != null) {
+        const c = getMenuById(cid);
+        if (c) recipes.push({ date: d, meal, candidate: c });
+      }
+    });
+  }
+
+  if (recipes.length === 0) {
+    alert('採用された献立がありません。先に献立を割り当ててください。');
+    return;
+  }
+
+  // レシピ印刷用のHTMLを構築
+  const container = document.getElementById('recipePrintContainer');
+  let html = '';
+  recipes.forEach((r, idx) => {
+    html += buildRecipeSheet(r, idx + 1, recipes.length);
+  });
+  container.innerHTML = html;
+
+  // 印刷モードに切り替えて印刷ダイアログを開く
+  document.body.classList.add('recipe-print-mode');
+
+  // 印刷ダイアログを開く（少し遅延させて確実にレンダリングを待つ）
+  setTimeout(() => {
+    window.print();
+    // 印刷ダイアログが閉じたら通常モードに戻す
+    setTimeout(() => {
+      document.body.classList.remove('recipe-print-mode');
+    }, 500);
+  }, 200);
+}
+
+function buildRecipeSheet(recipeData, pageNum, total) {
+  const { date, meal, candidate: c } = recipeData;
+  const isManual = c.isManual === true;
+  const dows = ['日','月','火','水','木','金','土'];
+  const dateStr = `${date.getMonth()+1}月${date.getDate()}日（${dows[date.getDay()]}）`;
+  const mealLabel = meal === 'lunch' ? '昼　食' : '夕　食';
+  const mealClass = meal;
+  const event = getEventForDate(date);
+  const eventTag = event ? `<span class="recipe-event-tag">★ ${escapeHtml(event)}</span>` : '';
+  const menuEmoji = getMenuEmoji(c.category || '', c.name || '');
+  const hasYakuzen = c.yakuzen && c.yakuzen !== 'なし' && c.yakuzen.trim().length > 0;
+
+  // 5品のカード（空欄を除外）
+  const items = (Array.isArray(c.items) ? c.items : []).filter(it => it && (it.name || '').trim().length > 0);
+  const itemCards = items.map(it => {
+    const emoji = getItemEmoji(it.type || '', it.name || '');
+    const klass = getItemCategoryClass(it.type || '');
+    return `<div class="recipe-item-card ${klass}">
+      <div class="recipe-item-emoji">${emoji}</div>
+      <div class="recipe-item-type">${escapeHtml(it.type || '')}</div>
+      <div class="recipe-item-name">${escapeHtml(it.name || '')}</div>
+    </div>`;
+  }).join('');
+
+  // 材料
+  const ingredients = Array.isArray(c.ingredients) ? c.ingredients : [];
+  const ingHtml = ingredients.map(ing =>
+    `<div class="recipe-ingredient-row">
+      <span class="recipe-ingredient-name">${escapeHtml(ing.name || '')}</span>
+      <span class="recipe-ingredient-amount">${escapeHtml(ing.amount || '')}</span>
+    </div>`
+  ).join('');
+
+  // 作り方
+  const recipeText = formatRecipeText(c.recipe || '');
+  const hasRecipe = (c.recipe || '').trim().length > 0;
+
+  // メタ情報
+  const metaHtml = isManual
+    ? `<span class="manual-tag" style="font-size: 0.78rem; padding: 3px 10px;">✏️ 手動メニュー</span> ${c.category || ''}`
+    : `約${c.calories || 550}kcal / ${c.category || ''}`;
+
+  // 5品グリッド：空ならスキップ
+  const itemsGridHtml = items.length > 0 ? `<div class="recipe-items-grid">${itemCards}</div>` : '';
+
+  // 材料セクション：空ならスキップ
+  const ingredientsSectionHtml = ingredients.length > 0 ? `
+    <div class="recipe-section">
+      <div class="recipe-section-heading"><span class="emoji">🛒</span>材料</div>
+      <div class="recipe-ingredients-grid">${ingHtml}</div>
+    </div>` : '';
+
+  // 作り方セクション：手動でレシピがない場合は「現場で確認」表示
+  let methodSectionHtml;
+  if (hasRecipe) {
+    methodSectionHtml = `
+    <div class="recipe-section">
+      <div class="recipe-section-heading"><span class="emoji">👨‍🍳</span>作り方</div>
+      <div class="recipe-method-text">${recipeText}</div>
+    </div>`;
+  } else if (isManual) {
+    methodSectionHtml = `
+    <div class="recipe-section">
+      <div class="recipe-section-heading"><span class="emoji">👨‍🍳</span>作り方</div>
+      <div class="recipe-method-text" style="text-align: center; padding: 30px 20px; color: var(--ink-soft); font-style: italic; background: rgba(122,140,92,0.06);">
+        🍳 手動メニューのため、現場で確認してください
+      </div>
+    </div>`;
+  } else {
+    methodSectionHtml = '';
+  }
+
+  return `<div class="recipe-sheet">
+    <div class="recipe-header">
+      <div class="recipe-date-block">
+        <span class="recipe-date">${dateStr}</span>
+        <span class="recipe-meal-badge ${mealClass}">${mealLabel}</span>
+        ${eventTag}
+      </div>
+      <div class="recipe-brand-block">
+        社会福祉法人 天祐会<br>
+        <span class="gold">七 福 神 グ ル ー プ</span>
+      </div>
+    </div>
+
+    <div class="recipe-menu-title-wrap">
+      <div class="recipe-menu-emoji">${menuEmoji}</div>
+      <div style="flex:1;">
+        <div class="recipe-menu-title">${escapeHtml(c.name || '')}</div>
+        <div class="recipe-menu-meta">
+          ${metaHtml}
+          ${hasYakuzen ? `<br><span class="recipe-yakuzen-tag">🌿 ${escapeHtml(c.yakuzen)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    ${itemsGridHtml}
+
+    ${ingredientsSectionHtml}
+
+    ${methodSectionHtml}
+
+    <div class="recipe-footer">
+      <span class="recipe-footer-philosophy">— 楽しく食べる環境づくり —</span>
+      <span class="recipe-page-num">${pageNum} / ${total}</span>
+    </div>
+  </div>`;
+}
+
+// ===== Navigation =====
+function backToCandidates() {
+  document.getElementById('confirmedSection').style.display = 'none';
+  document.getElementById('candidatesSection').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function backToConfirmed() {
+  document.getElementById('shoppingSection').style.display = 'none';
+  document.getElementById('confirmedSection').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function resetAll() {
+  if (!confirm('入力内容をクリアして最初からやり直しますか？')) return;
+  candidates = [];
+  manualMenus = [];
+  nextManualId = 1001;
+  assignments = {};
+  confirmedSchedule = null;
+  document.getElementById('candidatesSection').style.display = 'none';
+  document.getElementById('confirmedSection').style.display = 'none';
+  document.getElementById('shoppingSection').style.display = 'none';
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('formSection').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ===== CSV Export =====
+function downloadCSV(type) {
+  if (type === 'schedule') {
+    let csv = '\uFEFF日付,昼/夕,献立名,主食,主菜,副菜1,副菜2,デザート/汁物,薬膳要素\n';
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(weekStartDate, i);
+      const key = formatDateInput(d);
+      ['lunch', 'dinner'].forEach(meal => {
+        const cid = assignments[`${key}-${meal}`];
+        const dateStr = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+        const mealJp = meal === 'lunch' ? '昼' : '夕';
+        if (cid != null) {
+          const c = getMenuById(cid);
+          if (c) {
+            const items = Array.isArray(c.items) ? c.items : [];
+            const get = (type) => {
+              const it = items.find(i => i.type === type);
+              return it ? (it.name || '') : '';
+            };
+            const dz = items.find(i => i.type === 'デザート' || i.type === '汁物');
+            const yk = c.yakuzen && c.yakuzen !== 'なし' ? c.yakuzen : '';
+            csv += `"${dateStr}","${mealJp}","${(c.name || '').replace(/"/g,'""')}","${get('主食')}","${get('主菜')}","${get('副菜1')}","${get('副菜2')}","${dz ? dz.type+': '+(dz.name || '') : ''}","${yk}"\n`;
+          }
+        } else {
+          const dow = d.getDay();
+          const placeholder = (dow >= 1 && dow <= 5) ? 'クックデリ' : '';
+          csv += `"${dateStr}","${mealJp}","${placeholder}","","","","","",""\n`;
+        }
+      });
+    }
+    download(csv, `献立表_${formatDateInput(weekStartDate)}.csv`);
+  } else if (type === 'shopping') {
+    let csv = '\uFEFFカテゴリ,食材名,数量\n';
+    document.querySelectorAll('.shopping-section').forEach(sec => {
+      const cat = sec.querySelector('.shopping-category')?.textContent || '';
+      sec.querySelectorAll('.shopping-item').forEach(it => {
+        const name = it.querySelector('.shopping-name')?.textContent || '';
+        const amt = it.querySelector('.shopping-amount')?.textContent || '';
+        csv += `"${cat}","${name.replace(/"/g,'""')}","${amt.replace(/"/g,'""')}"\n`;
+      });
+    });
+    download(csv, `食材購入リスト_${formatDateInput(weekStartDate)}.csv`);
+  }
+}
+
+function download(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
