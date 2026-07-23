@@ -911,6 +911,83 @@ function isMainIngredient(name) {
   return true;
 }
 
+// ===== 週内重複チェック =====
+function normalizeDishName(name) {
+  if (!name) return '';
+  let s = String(name).replace(/[\s　]/g, '');
+  s = s.replace(/肉の/g, 'の').replace(/肉/g, '');
+  s = s.replace(/和風|洋風|中華風|自家製|お手製/g, '');
+  return s.toLowerCase();
+}
+
+function getMainDishItemName(menu) {
+  const items = Array.isArray(menu.items) ? menu.items : [];
+  const it = items.find(i => i && i.type === '主菜');
+  const name = (it && it.name) ? it.name : (menu.name || '');
+  return String(name).trim();
+}
+
+function getSideDishNames(menu) {
+  const items = Array.isArray(menu.items) ? menu.items : [];
+  return items
+    .filter(i => i && (i.type === '副菜1' || i.type === '副菜2'))
+    .map(i => (i.name || '').trim())
+    .filter(Boolean);
+}
+
+function getMenuMainIngredients(menu) {
+  if (!Array.isArray(menu.ingredients)) return [];
+  return menu.ingredients
+    .map(ing => (ing.name || '').trim())
+    .filter(n => n && isMainIngredient(n));
+}
+
+function compareDuplicate(menuA, menuB) {
+  const nameA = normalizeDishName(menuA.name);
+  const nameB = normalizeDishName(menuB.name);
+  if (nameA && nameB && nameA === nameB) {
+    return `料理名が重複（${menuA.name} / ${menuB.name}）`;
+  }
+
+  const mainA = normalizeDishName(getMainDishItemName(menuA));
+  const mainB = normalizeDishName(getMainDishItemName(menuB));
+  if (mainA && mainB && mainA === mainB) {
+    return `主菜が重複（${getMainDishItemName(menuA)} / ${getMainDishItemName(menuB)}）`;
+  }
+
+  const sidesA = getSideDishNames(menuA);
+  const sidesB = getSideDishNames(menuB);
+  const sideHit = sidesA.find(s => sidesB.includes(s));
+  if (sideHit) {
+    return `副菜が重複（${sideHit}）`;
+  }
+
+  const ingA = getMenuMainIngredients(menuA);
+  const ingB = getMenuMainIngredients(menuB);
+  const ingHit = ingA.find(n => ingB.includes(n));
+  if (ingHit) {
+    return `主要食材が重複（${ingHit}）`;
+  }
+
+  return null;
+}
+
+function findDuplicateInPair(newMenus, existingCandidates) {
+  if (!Array.isArray(newMenus)) return null;
+  for (const menu of newMenus) {
+    for (const existing of existingCandidates) {
+      const reason = compareDuplicate(menu, existing);
+      if (reason) return { menu, reason };
+    }
+    for (const other of newMenus) {
+      if (other === menu) continue;
+      const reason = compareDuplicate(menu, other);
+      if (reason) return { menu, reason };
+    }
+  }
+  return null;
+}
+
 function updateHistoryStatus() {
   const count = loadHistory().length;
   const el = document.getElementById('historyCount');
@@ -1232,6 +1309,7 @@ async function generateMenu() {
   candidates = [];
   let mealNum = 1;
   let usedMainIngredients = []; // 使用済みの主要食材（魚種・肉種・主要野菜）
+  let usedDishNames = []; // 使用済みの料理名（料理名・主菜名）
 
   try {
     // 7回のAPI呼び出しで2食ずつ = 計14食
@@ -1239,25 +1317,39 @@ async function generateMenu() {
       updateLoading('14食の献立を考案中', `${i*2+1}〜${i*2+2}食目を作成中…`, i*2, 14);
       const noodleHint = (i === 3) ? '（このペアの昼食は麺類または丼物にしてください。週1回の麺の日。麺の場合は「麺＋副菜2」または「麺＋副菜＋デザート」の構成）' : '';
 
-      const result = await generatePairOfMenus({
-        people, budget, keywords, preferences, notes,
-        month, yakuzen, eventsThisWeek, recentDishes,
-        pairIndex: i, mealStartNum: mealNum,
-        noodleHint,
-        usedMainIngredients: [...usedMainIngredients]
-      });
+      // 重複が見つかった場合は同じペアを最大2回まで再生成する
+      const DUP_MAX_ATTEMPTS = 2;
+      let result;
+      let dupAttempt = 0;
+      while (true) {
+        result = await generatePairOfMenus({
+          people, budget, keywords, preferences, notes,
+          month, yakuzen, eventsThisWeek, recentDishes,
+          pairIndex: i, mealStartNum: mealNum,
+          noodleHint,
+          usedMainIngredients: [...usedMainIngredients],
+          usedDishNames: [...usedDishNames]
+        });
+        const dup = findDuplicateInPair(result, candidates);
+        if (!dup || dupAttempt >= DUP_MAX_ATTEMPTS) {
+          if (dup) console.warn(`${i+1}組目: 再試行しても重複を解消できなかったため採用します。理由: ${dup.reason}`);
+          break;
+        }
+        dupAttempt++;
+        console.warn(`${i+1}組目で重複を検出、再生成します (${dupAttempt}/${DUP_MAX_ATTEMPTS}): ${dup.reason}`);
+        await sleep(10000);
+      }
       candidates.push(...result);
 
-      // 使用された主要食材を蓄積（主菜・副菜の食材から抽出）
+      // 使用された主要食材・料理名を蓄積
       result.forEach(menu => {
-        if (Array.isArray(menu.ingredients)) {
-          menu.ingredients.forEach(ing => {
-            const name = (ing.name || '').trim();
-            if (name && isMainIngredient(name) && !usedMainIngredients.includes(name)) {
-              usedMainIngredients.push(name);
-            }
-          });
-        }
+        getMenuMainIngredients(menu).forEach(name => {
+          if (!usedMainIngredients.includes(name)) usedMainIngredients.push(name);
+        });
+        const dishName = (menu.name || '').trim();
+        if (dishName && !usedDishNames.includes(dishName)) usedDishNames.push(dishName);
+        const mainName = getMainDishItemName(menu);
+        if (mainName && !usedDishNames.includes(mainName)) usedDishNames.push(mainName);
       });
 
       mealNum += 2;
@@ -1291,7 +1383,7 @@ async function generateMenu() {
 
 async function generatePairOfMenus(opts, attempt = 0) {
   const MAX_ATTEMPTS = 3;
-  const {people, budget, keywords, preferences, notes, month, yakuzen, eventsThisWeek, recentDishes, pairIndex, mealStartNum, noodleHint, usedMainIngredients} = opts;
+  const {people, budget, keywords, preferences, notes, month, yakuzen, eventsThisWeek, recentDishes, pairIndex, mealStartNum, noodleHint, usedMainIngredients, usedDishNames} = opts;
   const recentList = recentDishes.length > 0
     ? `\n【過去3ヶ月で採用済みの主菜（重複させない）】\n${recentDishes.slice(0, 100).join('、')}`
     : '';
@@ -1300,6 +1392,9 @@ async function generatePairOfMenus(opts, attempt = 0) {
     : '';
   const usedList = (usedMainIngredients && usedMainIngredients.length > 0)
     ? `\n【今週、すでに他の食事で使用された主要食材（同じ食材を主菜・副菜の主役として使わない。1週間の中で食材が重複しないようにする）】\n${usedMainIngredients.join('、')}\n上記の食材は今回の2食では絶対にメイン食材として使わないでください。例えば「サバ」が含まれていれば今回の主菜にサバを使ってはいけません。「新玉ねぎ」が含まれていれば、副菜の主役として新玉ねぎを使ってはいけません（少量の薬味使用は可）。`
+    : '';
+  const usedNamesList = (usedDishNames && usedDishNames.length > 0)
+    ? `\n【今週すでに使用した料理名（同じ名前・表記違いの類似料理を再度使わない）】\n${usedDishNames.join('、')}\nこれらと同じ料理名や、「鶏の照り焼き」と「鶏肉の照り焼き」のように表記が違うだけの類似料理は絶対に出さないでください。`
     : '';
 
   const prompt = `あなたは認知症対応型グループホームの経験豊富な料理長兼管理栄養士です。社会福祉法人天祐会・七福神グループの「その人らしい生命の尊重」の理念のもと、入居者が安心して楽しめる家庭料理を提供しています。
@@ -1330,6 +1425,7 @@ ${eventsText}
 ・季節食材を活用する${noodleHint}
 ${recentList}
 ${usedList}
+${usedNamesList}
 
 【${month}月の薬膳ガイド】
 ${yakuzen.theme}。${yakuzen.point}
